@@ -28,17 +28,13 @@
         html:not(.dark) { --bg: #f4f6fa; --surface: #ffffff; --surface2: #e8ecf4; --border: #cbd5e1; --text: #0a0e1a; --muted: #64748b; }
         body { background: var(--bg); color: var(--text); }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-        /* Animations */
         @keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
         @keyframes pulse-dot { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
-        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-        @keyframes slideIn { from{transform:translateX(-100%);opacity:0} to{transform:translateX(0);opacity:1} }
         @keyframes scaleIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
         .anim-fade-up { animation: fadeUp .4s ease-out both; }
         .anim-scale-in { animation: scaleIn .3s ease-out both; }
@@ -46,30 +42,16 @@
         .dot-pulse span:nth-child(2) { animation-delay:.2s }
         .dot-pulse span:nth-child(3) { animation-delay:.4s }
 
-        /* Setup BG */
-        .setup-bg {
-            background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #1a2236 70%, #0a0e1a 100%);
-            position: relative; overflow: hidden;
-        }
-        .dark .setup-bg::before {
-            content:''; position:absolute; inset:0;
-            background: radial-gradient(ellipse at 30% 20%, rgba(251,191,36,.07) 0%, transparent 50%),
-                        radial-gradient(ellipse at 70% 80%, rgba(251,191,36,.04) 0%, transparent 50%);
-        }
-        html:not(.dark) .setup-bg {
-            background: linear-gradient(135deg, #f4f6fa 0%, #e8ecf4 40%, #fef3c7 70%, #f4f6fa 100%);
-        }
+        .setup-bg { background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #1a2236 70%, #0a0e1a 100%); position: relative; overflow: hidden; }
+        .dark .setup-bg::before { content:''; position:absolute; inset:0; background: radial-gradient(ellipse at 30% 20%, rgba(251,191,36,.07) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(251,191,36,.04) 0%, transparent 50%); }
+        html:not(.dark) .setup-bg { background: linear-gradient(135deg, #f4f6fa 0%, #e8ecf4 40%, #fef3c7 70%, #f4f6fa 100%); }
 
-        /* Markdown Styles */
         .md-content h1,.md-content h2,.md-content h3 { font-weight:600; margin:1em 0 .5em; }
-        .md-content h1 { font-size:1.3em; }
-        .md-content h2 { font-size:1.15em; }
-        .md-content h3 { font-size:1.05em; }
+        .md-content h1 { font-size:1.3em; } .md-content h2 { font-size:1.15em; } .md-content h3 { font-size:1.05em; }
         .md-content p { margin:.4em 0; line-height:1.7; }
         .md-content ul,.md-content ol { margin:.5em 0; padding-left:1.5em; }
         .md-content li { margin:.25em 0; line-height:1.6; }
-        .md-content ul li { list-style:disc; }
-        .md-content ol li { list-style:decimal; }
+        .md-content ul li { list-style:disc; } .md-content ol li { list-style:decimal; }
         .md-content code { background:var(--surface2); padding:2px 6px; border-radius:4px; font-size:.9em; font-family:'Fira Code',monospace; }
         .md-content pre { background:var(--surface2); padding:12px 16px; border-radius:8px; overflow-x:auto; margin:.6em 0; }
         .md-content pre code { background:none; padding:0; }
@@ -80,40 +62,40 @@
         .md-content th,.md-content td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
         .md-content th { background:var(--surface2); font-weight:600; }
 
-        /* Chat bubble */
         .bubble-user { background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%); color: #1a1a1a; }
         .dark .bubble-ai { background: var(--surface2); }
         html:not(.dark) .bubble-ai { background: #f1f5f9; color: #1a2236; }
 
-        /* Sidebar active */
         .nav-item.active { background: linear-gradient(90deg, rgba(251,191,36,.15) 0%, transparent 100%); border-left:3px solid var(--accent); color:var(--accent); }
         .dark .nav-item:not(.active):hover { background: rgba(255,255,255,.04); }
         html:not(.dark) .nav-item:not(.active):hover { background: rgba(0,0,0,.04); }
 
-        /* Bottom nav active */
         .bnav-item.active { color: var(--accent); }
         .bnav-item.active::after { content:''; position:absolute; top:0; left:25%; right:25%; height:2px; background:var(--accent); border-radius:0 0 2px 2px; }
 
-        /* Custom textarea */
         textarea.chat-input { resize:none; min-height:48px; max-height:160px; }
-
-        /* Card hover */
         .action-card { transition: all .2s ease; }
         .action-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(251,191,36,.12); border-color: var(--accent) !important; }
 
-        /* Custom input styles */
         .form-input { background:var(--surface); border:1px solid var(--border); color:var(--text); transition:border-color .2s; }
         .form-input:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 3px rgba(251,191,36,.15); }
         .form-input::placeholder { color:var(--muted); }
+
+        /* Mode toggle pills */
+        .mode-pill { transition: all .2s; cursor: pointer; }
+        .mode-pill.active { background: var(--accent); color: #1a1a1a; font-weight: 600; }
+        .mode-pill:not(.active) { background: var(--surface2); color: var(--muted); }
+        .mode-pill:not(.active):hover { color: var(--text); }
+
+        /* Config section divider */
+        .cfg-divider { height:1px; background: var(--border); margin: 4px 0; }
     </style>
 </head>
 <body class="font-sans antialiased overflow-hidden h-screen">
 <script>
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
+    } else { document.documentElement.classList.remove('dark'); }
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
         e.matches ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
     });
@@ -156,9 +138,8 @@
             </button>
             <p id="setup-error" class="text-red-400 text-xs mt-3 hidden text-center"></p>
         </div>
-
         <p class="text-center text-[var(--muted)] text-xs mt-4 opacity-60">
-            Seus dados ficam apenas nesta sessão e nunca são armazenados.
+            Configure o perfil da sua loja nas Configurações para respostas mais assertivas.
         </p>
     </div>
 </div>
@@ -235,7 +216,6 @@
                 </button>
             </header>
             <div id="messages-copy" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                <!-- Copy form card -->
                 <div id="copy-form-card" class="max-w-2xl mx-auto rounded-2xl p-5 border anim-fade-up" style="background:var(--surface);border-color:var(--border)">
                     <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Gerador de Descrição</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
@@ -258,6 +238,7 @@
                             <select id="copy-platform" class="form-input w-full rounded-lg px-3 py-2.5 text-base">
                                 <option value="NuvemShop">NuvemShop</option>
                                 <option value="Shopify">Shopify</option>
+                                <option value="WooCommerce">WooCommerce</option>
                                 <option value="Outro">Outra</option>
                             </select>
                         </div>
@@ -302,7 +283,6 @@
                 </button>
             </header>
             <div id="messages-mine" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-                <!-- Quick action cards -->
                 <div id="mine-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto anim-fade-up">
                     <button onclick="mineAction('trending')" class="action-card p-4 rounded-xl border text-left" style="background:var(--surface);border-color:var(--border)">
                         <div class="flex items-center gap-2 mb-2"><span class="text-lg">🔥</span><span class="font-semibold text-sm">Produtos em Alta</span></div>
@@ -345,6 +325,20 @@
             </header>
             <div class="flex-1 overflow-y-auto px-4 py-6">
                 <div class="max-w-lg mx-auto space-y-5 anim-fade-up">
+
+                    <!-- Mode selector -->
+                    <div class="flex gap-1 p-1 rounded-xl" style="background:var(--surface)">
+                        <button onclick="setCalcMode('manual')" class="mode-pill active flex-1 text-xs py-2.5 rounded-lg text-center" data-mode="manual">
+                            <i class="fa-solid fa-sliders mr-1"></i> Manual
+                        </button>
+                        <button onclick="setCalcMode('multiplicador')" class="mode-pill flex-1 text-xs py-2.5 rounded-lg text-center" data-mode="multiplicador">
+                            <i class="fa-solid fa-xmark mr-1"></i> Multiplicador
+                        </button>
+                        <button onclick="setCalcMode('fixo')" class="mode-pill flex-1 text-xs py-2.5 rounded-lg text-center" data-mode="fixo">
+                            <i class="fa-solid fa-bullseye mr-1"></i> Lucro Fixo
+                        </button>
+                    </div>
+
                     <!-- Inputs -->
                     <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
                         <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-coins text-brand-400"></i> Custos e Preço</h3>
@@ -359,10 +353,28 @@
                                     <input id="calc-shipping" type="number" step="0.01" value="15" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
                                 </div>
                             </div>
-                            <div>
-                                <label class="text-xs text-[var(--muted)] mb-1 block">Preço de Venda (R$)</label>
+
+                            <!-- Multiplicador row -->
+                            <div id="calc-mult-row" class="hidden">
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Multiplicador (ex: 3 = custo total × 3)</label>
+                                <input id="calc-multiplier" type="number" step="0.1" value="3" min="1" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                            </div>
+
+                            <!-- Lucro fixo row -->
+                            <div id="calc-fixo-row" class="hidden">
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Lucro Desejado por Produto (R$)</label>
+                                <input id="calc-fixed-profit" type="number" step="0.01" value="30" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                            </div>
+
+                            <!-- Preço de venda -->
+                            <div id="calc-price-row">
+                                <label class="text-xs text-[var(--muted)] mb-1 flex items-center gap-1.5 flex-wrap">
+                                    Preço de Venda (R$)
+                                    <span id="calc-price-badge" class="hidden text-[10px] bg-brand-400/15 text-brand-400 px-1.5 py-0.5 rounded-full font-semibold">AUTO</span>
+                                </label>
                                 <input id="calc-price" type="number" step="0.01" value="149.90" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
                             </div>
+
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="text-xs text-[var(--muted)] mb-1 block">Taxa Plataforma (%)</label>
@@ -385,12 +397,12 @@
                         <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-brand-400"></i> Resultados</h3>
                         <div class="space-y-3">
                             <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
-                                <span class="text-sm text-[var(--muted)]">Receita</span>
+                                <span class="text-sm text-[var(--muted)]">Receita (Preço de Venda)</span>
                                 <span id="res-revenue" class="font-semibold">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
-                                <span class="text-sm text-[var(--muted)]">Custo Total</span>
-                                <span id="res-total-cost" class="font-semibold text-red-400">R$ 0,00</span>
+                                <span class="text-sm text-[var(--muted)]">Custo Produto + Frete</span>
+                                <span id="res-base-cost" class="text-sm text-red-400">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
                                 <span class="text-sm text-[var(--muted)]">Taxa Plataforma</span>
@@ -399,6 +411,14 @@
                             <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
                                 <span class="text-sm text-[var(--muted)]">Taxa Gateway</span>
                                 <span id="res-gateway" class="text-sm text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
+                                <span class="text-sm text-[var(--muted)]">Custo de Ads</span>
+                                <span id="res-ads" class="text-sm text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
+                                <span class="text-sm text-[var(--muted)] font-medium">Custo Total</span>
+                                <span id="res-total-cost" class="font-semibold text-red-400">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between items-center py-3 rounded-xl px-3 mt-2" id="res-profit-bg" style="background:var(--surface2)">
                                 <span class="font-semibold">Lucro Líquido</span>
@@ -426,11 +446,98 @@
                 <div class="w-8 h-8 rounded-lg bg-brand-400/15 flex items-center justify-center"><i class="fa-solid fa-gear text-brand-400 text-sm"></i></div>
                 <div>
                     <h2 class="font-semibold text-sm">Configurações</h2>
-                    <p class="text-xs text-[var(--muted)]">Gerencie sua conexão com a API</p>
+                    <p class="text-xs text-[var(--muted)]">Perfil da loja, API e preferências</p>
                 </div>
             </header>
             <div class="flex-1 overflow-y-auto px-4 py-6">
                 <div class="max-w-lg mx-auto space-y-5 anim-fade-up">
+
+                    <!-- ===== STORE PROFILE ===== -->
+                    <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
+                        <h3 class="font-semibold text-sm mb-1 flex items-center gap-2"><i class="fa-solid fa-store text-brand-400"></i> Perfil da Loja</h3>
+                        <p class="text-xs text-[var(--muted)] mb-4">Preencha para respostas mais assertivas e personalizadas da IA.</p>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Plataforma do E-commerce</label>
+                                <select id="cfg-platform" class="form-input w-full rounded-lg px-3 py-2.5 text-base" onchange="onPlatformChange()">
+                                    <option value="">Selecione...</option>
+                                    <option value="NuvemShop">NuvemShop</option>
+                                    <option value="Shopify">Shopify</option>
+                                    <option value="WooCommerce">WooCommerce</option>
+                                    <option value="Cartpanda">Cartpanda</option>
+                                    <option value="Bagy">Bagy</option>
+                                    <option value="Loja Integrada">Loja Integrada</option>
+                                    <option value="Tray">Tray</option>
+                                    <option value="Outra">Outra</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Tipo de Checkout</label>
+                                <select id="cfg-checkout-type" class="form-input w-full rounded-lg px-3 py-2.5 text-base" onchange="onCheckoutTypeChange()">
+                                    <option value="">Selecione...</option>
+                                    <option value="proprio">Próprio da Plataforma</option>
+                                    <option value="externo">Checkout Externo</option>
+                                </select>
+                            </div>
+                            <div id="cfg-checkout-ext-row" class="hidden">
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Checkout Externo</label>
+                                <select id="cfg-checkout-externo" class="form-input w-full rounded-lg px-3 py-2.5 text-base">
+                                    <option value="">Selecione...</option>
+                                    <option value="CartPanda">CartPanda</option>
+                                    <option value="Yampi">Yampi</option>
+                                    <option value="Guru">Guru</option>
+                                    <option value="Shopify Checkout">Shopify Checkout</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Gateway de Pagamento</label>
+                                <select id="cfg-gateway" class="form-input w-full rounded-lg px-3 py-2.5 text-base">
+                                    <option value="">Selecione...</option>
+                                    <option value="Mercado Pago">Mercado Pago</option>
+                                    <option value="Nuvem Pago">Nuvem Pago</option>
+                                    <option value="Appmax">Appmax</option>
+                                    <option value="PagSeguro">PagSeguro</option>
+                                    <option value="Pagar.me">Pagar.me</option>
+                                    <option value="Stripe">Stripe</option>
+                                    <option value="PayPal">PayPal</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Nicho Principal</label>
+                                <input id="cfg-niche" type="text" class="form-input w-full rounded-lg px-3 py-2.5 text-base" placeholder="Ex: Moda Feminina, Pet Shop, Fitness..." >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== CALCULATOR PREFERENCES ===== -->
+                    <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
+                        <h3 class="font-semibold text-sm mb-1 flex items-center gap-2"><i class="fa-solid fa-calculator text-brand-400"></i> Preferências da Calculadora</h3>
+                        <p class="text-xs text-[var(--muted)] mb-4">Defina o modo padrão de cálculo de preço de venda.</p>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1.5 block">Modo de Precificação</label>
+                                <div class="flex gap-1 p-1 rounded-xl" style="background:var(--surface2)">
+                                    <button onclick="setCfgCalcMode('manual')" class="mode-pill active flex-1 text-xs py-2 rounded-lg text-center" data-cfgmode="manual">Manual</button>
+                                    <button onclick="setCfgCalcMode('multiplicador')" class="mode-pill flex-1 text-xs py-2 rounded-lg text-center" data-cfgmode="multiplicador">Multiplicador</button>
+                                    <button onclick="setCfgCalcMode('fixo')" class="mode-pill flex-1 text-xs py-2 rounded-lg text-center" data-cfgmode="fixo">Lucro Fixo</button>
+                                </div>
+                            </div>
+                            <div id="cfg-mult-row" class="hidden">
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Valor do Multiplicador</label>
+                                <input id="cfg-multiplier" type="number" step="0.1" value="3" min="1" class="form-input w-full rounded-lg px-3 py-2.5 text-base" >
+                                <p class="text-[10px] text-[var(--muted)] mt-1">Preço = (Custo + Frete) × Multiplicador</p>
+                            </div>
+                            <div id="cfg-fixo-row" class="hidden">
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Lucro Fixo Desejado (R$)</label>
+                                <input id="cfg-fixed-profit" type="number" step="0.01" value="30" class="form-input w-full rounded-lg px-3 py-2.5 text-base" >
+                                <p class="text-[10px] text-[var(--muted)] mt-1">O preço de venda será calculado para atingir esse lucro líquido</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== API ===== -->
                     <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
                         <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-key text-brand-400"></i> API</h3>
                         <div class="space-y-3">
@@ -447,13 +554,17 @@
                                 <label class="text-xs text-[var(--muted)] mb-1 block">Modelo da IA</label>
                                 <input id="cfg-model" type="text" class="form-input w-full rounded-lg px-3 py-2.5 text-base" placeholder="Ex: gpt-5.3-codex" >
                             </div>
-                            <button onclick="saveConfig()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 text-ink-950 font-semibold text-sm hover:from-brand-300 hover:to-brand-500 transition-all active:scale-[.98] flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-floppy-disk"></i> Salvar Configurações
-                            </button>
-                            <p id="cfg-status" class="text-xs text-center hidden"></p>
                         </div>
                     </div>
 
+                    <!-- ===== SAVE BUTTON ===== -->
+                    <button onclick="saveConfig()"
+                        class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 text-ink-950 font-semibold text-sm hover:from-brand-300 hover:to-brand-500 transition-all active:scale-[.98] flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Todas as Configurações
+                    </button>
+                    <p id="cfg-status" class="text-xs text-center hidden"></p>
+
+                    <!-- ===== ABOUT ===== -->
                     <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
                         <h3 class="font-semibold text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info text-brand-400"></i> Sobre</h3>
                         <p class="text-sm text-[var(--muted)] leading-relaxed">
@@ -472,24 +583,19 @@
 <nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 lg:hidden border-t z-40" style="background:var(--surface);border-color:var(--border)">
     <div class="flex justify-around items-center h-16">
         <button class="bnav-item active relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="chat">
-            <i class="fa-solid fa-comments text-base"></i>
-            <span class="text-[10px] font-medium">Chat</span>
+            <i class="fa-solid fa-comments text-base"></i><span class="text-[10px] font-medium">Chat</span>
         </button>
         <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="copy">
-            <i class="fa-solid fa-pen-fancy text-base"></i>
-            <span class="text-[10px] font-medium">Copy</span>
+            <i class="fa-solid fa-pen-fancy text-base"></i><span class="text-[10px] font-medium">Copy</span>
         </button>
         <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="mine">
-            <i class="fa-solid fa-gem text-base"></i>
-            <span class="text-[10px] font-medium">Mineração</span>
+            <i class="fa-solid fa-gem text-base"></i><span class="text-[10px] font-medium">Mineração</span>
         </button>
         <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="calc">
-            <i class="fa-solid fa-calculator text-base"></i>
-            <span class="text-[10px] font-medium">Calc</span>
+            <i class="fa-solid fa-calculator text-base"></i><span class="text-[10px] font-medium">Calc</span>
         </button>
         <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="config">
-            <i class="fa-solid fa-gear text-base"></i>
-            <span class="text-[10px] font-medium">Config</span>
+            <i class="fa-solid fa-gear text-base"></i><span class="text-[10px] font-medium">Config</span>
         </button>
     </div>
 </nav>
@@ -513,17 +619,25 @@ const state = {
     activeTab: 'chat',
     streaming: { chat: false, copy: false, mine: false },
     abortControllers: { chat: null, copy: null, mine: null },
-    conversations: {
-        chat: [],
-        copy: [],
-        mine: []
+    conversations: { chat: [], copy: [], mine: [] },
+    storeProfile: {
+        platform: '',
+        checkoutType: '',
+        checkoutExterno: '',
+        gateway: '',
+        niche: ''
+    },
+    calcSettings: {
+        mode: 'manual',
+        multiplier: 3,
+        fixedProfit: 30
     }
 };
 
 /* =========================================================
-   SYSTEM PROMPTS
+   BASE SYSTEM PROMPTS
    ========================================================= */
-const SYSTEM_PROMPTS = {
+const BASE_PROMPTS = {
     chat: `Você é um Especialista Sênior em Dropshipping, E-commerce e Marketing Digital. Seu conhecimento abrange:
 
 Estratégias de Venda: Marketing digital, mineração de produtos, funis de venda e estratégias de Order Bump, Upsell e Downsell.
@@ -565,6 +679,31 @@ Sempre forneça análises detalhadas com prós e contras, estimativas de margem 
 };
 
 /* =========================================================
+   DYNAMIC SYSTEM PROMPT (injects store profile context)
+   ========================================================= */
+function getSystemPrompt(tab) {
+    let base = BASE_PROMPTS[tab];
+    const p = state.storeProfile;
+    const hasProfile = p.platform || p.niche || p.gateway || p.checkoutType;
+
+    if (hasProfile) {
+        let ctx = '\n\n--- CONTEXTO DA LOJA DO USUÁRIO ---\n';
+        if (p.platform) ctx += 'Plataforma: ' + p.platform + '\n';
+        if (p.checkoutType === 'proprio' && p.platform) {
+            ctx += 'Checkout: Próprio da ' + p.platform + '\n';
+        } else if (p.checkoutType === 'externo' && p.checkoutExterno) {
+            ctx += 'Checkout Externo: ' + p.checkoutExterno + '\n';
+        }
+        if (p.gateway) ctx += 'Gateway de Pagamento: ' + p.gateway + '\n';
+        if (p.niche) ctx += 'Nicho: ' + p.niche + '\n';
+        ctx += '\nIMPORTANTE: Use essas informações para personalizar TODAS as suas respostas. Dê conselhos específicos para a plataforma, checkout, gateway e nicho do usuário. Quando possível, mencione funcionalidades, integrações e dicas específicas para as ferramentas que o usuário utiliza. Se o usuário perguntar algo genérico, contextualize a resposta com base no perfil dele.\n';
+        base += ctx;
+    }
+
+    return base;
+}
+
+/* =========================================================
    WELCOME MESSAGES
    ========================================================= */
 const WELCOME_MESSAGES = {
@@ -577,6 +716,8 @@ Posso ajudar com:
 - 📦 Operação e logística de dropshipping
 - ✍️ Copywriting e descrições de produtos
 - 📈 Funis de venda, Upsell e Order Bump
+
+💡 **Dica:** Configure o perfil da sua loja nas **Configurações** para respostas mais personalizadas!
 
 **Como posso ajudar você hoje?**`,
 
@@ -626,8 +767,8 @@ function handleSetup() {
     document.getElementById('cfg-token').value = state.apiToken;
     document.getElementById('cfg-model').value = state.model;
 
-    // Init all tabs
     initWelcomeMessages();
+    syncCalcModeUI();
     calculate();
 }
 
@@ -642,29 +783,18 @@ function initWelcomeMessages() {
    ========================================================= */
 function switchTab(tab) {
     state.activeTab = tab;
-
-    // Hide all panels
     document.querySelectorAll('[id^="panel-"]').forEach(el => el.classList.add('hidden'));
     document.getElementById('panel-' + tab).classList.remove('hidden');
-
-    // Update sidebar
     document.querySelectorAll('#sidebar-nav .nav-item').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tab);
     });
-
-    // Update bottom nav
     document.querySelectorAll('#bottom-nav .bnav-item').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tab);
     });
-
-    // Scroll to bottom of chat
     const msgContainer = document.getElementById('messages-' + tab);
-    if (msgContainer) {
-        msgContainer.scrollTop = msgContainer.scrollHeight;
-    }
+    if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
 }
 
-// Bind tab clicks
 document.querySelectorAll('[data-tab]').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
@@ -676,10 +806,7 @@ function addUserMessage(tab, text) {
     const container = document.getElementById('messages-' + tab);
     const div = document.createElement('div');
     div.className = 'flex justify-end anim-fade-up';
-    div.innerHTML = `
-        <div class="bubble-user rounded-2xl rounded-br-md px-4 py-2.5 max-w-[80%] text-sm leading-relaxed shadow-sm">
-            ${escapeHtml(text)}
-        </div>`;
+    div.innerHTML = '<div class="bubble-user rounded-2xl rounded-br-md px-4 py-2.5 max-w-[80%] text-sm leading-relaxed shadow-sm">' + escapeHtml(text) + '</div>';
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
 }
@@ -689,15 +816,11 @@ function addBotMessage(tab, content, isComplete) {
     const div = document.createElement('div');
     div.className = 'flex justify-start anim-fade-up';
     const id = 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
-    div.innerHTML = `
-        <div class="flex gap-2.5 max-w-[88%]">
-            <div class="w-7 h-7 rounded-lg bg-brand-400/15 flex items-center justify-center shrink-0 mt-1">
-                <i class="fa-solid fa-robot text-brand-400 text-xs"></i>
-            </div>
-            <div class="bubble-ai rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm min-w-[40px]">
-                <div id="${id}" class="md-content">${isComplete !== false ? renderMarkdown(content) : '<div class="dot-pulse"><span></span><span></span><span></span></div>'}</div>
-            </div>
-        </div>`;
+    div.innerHTML = '<div class="flex gap-2.5 max-w-[88%]">' +
+        '<div class="w-7 h-7 rounded-lg bg-brand-400/15 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-robot text-brand-400 text-xs"></i></div>' +
+        '<div class="bubble-ai rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm min-w-[40px]">' +
+        '<div id="' + id + '" class="md-content">' + (isComplete !== false ? renderMarkdown(content) : '<div class="dot-pulse"><span></span><span></span><span></span></div>') + '</div>' +
+        '</div></div>';
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     return id;
@@ -714,11 +837,7 @@ function updateBotMessage(elementId, content) {
 
 function renderMarkdown(text) {
     if (!text) return '';
-    try {
-        return marked.parse(text);
-    } catch (e) {
-        return escapeHtml(text);
-    }
+    try { return marked.parse(text); } catch (e) { return escapeHtml(text); }
 }
 
 function escapeHtml(str) {
@@ -734,24 +853,17 @@ async function sendToAPI(tab, userText) {
     if (state.streaming[tab]) return;
     state.streaming[tab] = true;
 
-    // Add user message to conversation
     state.conversations[tab].push({ role: 'user', content: userText });
-
-    // Show user message in UI
     addUserMessage(tab, userText);
-
-    // Show loading placeholder
     const msgId = addBotMessage(tab, '', false);
 
-    // Build messages array
     const messages = [
-        { role: 'system', content: SYSTEM_PROMPTS[tab] },
+        { role: 'system', content: getSystemPrompt(tab) },
         ...state.conversations[tab]
     ];
 
     const controller = new AbortController();
     state.abortControllers[tab] = controller;
-
     let fullContent = '';
 
     try {
@@ -761,11 +873,7 @@ async function sendToAPI(tab, userText) {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + state.apiToken
             },
-            body: JSON.stringify({
-                model: state.model,
-                messages: messages,
-                stream: true
-            }),
+            body: JSON.stringify({ model: state.model, messages: messages, stream: true }),
             signal: controller.signal
         });
 
@@ -781,7 +889,6 @@ async function sendToAPI(tab, userText) {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split('\n');
             buffer = lines.pop() || '';
@@ -791,7 +898,6 @@ async function sendToAPI(tab, userText) {
                 if (!trimmed || !trimmed.startsWith('data:')) continue;
                 const data = trimmed.slice(5).trim();
                 if (data === '[DONE]') continue;
-
                 try {
                     const parsed = JSON.parse(data);
                     const delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
@@ -799,13 +905,10 @@ async function sendToAPI(tab, userText) {
                         fullContent += delta.content;
                         updateBotMessage(msgId, fullContent);
                     }
-                } catch (_e) {
-                    // skip invalid JSON chunks
-                }
+                } catch (_e) { /* skip */ }
             }
         }
 
-        // Handle non-streaming response
         if (!fullContent && buffer) {
             try {
                 const parsed = JSON.parse(buffer);
@@ -813,9 +916,7 @@ async function sendToAPI(tab, userText) {
                     fullContent = parsed.choices[0].message.content;
                     updateBotMessage(msgId, fullContent);
                 }
-            } catch (_e) {
-                // ignore
-            }
+            } catch (_e) { /* ignore */ }
         }
 
         if (!fullContent) {
@@ -823,9 +924,7 @@ async function sendToAPI(tab, userText) {
             updateBotMessage(msgId, fullContent);
         }
 
-        // Save assistant reply
         state.conversations[tab].push({ role: 'assistant', content: fullContent });
-
     } catch (err) {
         if (err.name === 'AbortError') {
             fullContent = fullContent || '_Geração interrompida._';
@@ -864,8 +963,6 @@ function handleChatKey(event, tab) {
 function clearChat(tab) {
     state.conversations[tab] = [];
     const container = document.getElementById('messages-' + tab);
-
-    // For copy tab, preserve the form card
     if (tab === 'copy') {
         const formCard = document.getElementById('copy-form-card');
         container.innerHTML = '';
@@ -877,8 +974,6 @@ function clearChat(tab) {
     } else {
         container.innerHTML = '';
     }
-
-    // Re-add welcome message
     addBotMessage(tab, WELCOME_MESSAGES[tab]);
     showToast('Conversa limpa!', 'fa-broom');
 }
@@ -888,7 +983,7 @@ function clearChat(tab) {
    ========================================================= */
 function generateCopy() {
     const name = document.getElementById('copy-name').value.trim();
-    const niche = document.getElementById('copy-niche').value.trim();
+    const niche = document.getElementById('copy-niche').value.trim() || state.storeProfile.niche || 'Geral';
     const features = document.getElementById('copy-features').value.trim();
     const platform = document.getElementById('copy-platform').value;
     const tone = document.getElementById('copy-tone').value;
@@ -898,23 +993,20 @@ function generateCopy() {
         return;
     }
 
-    const prompt = `Crie uma descrição de produto completa e altamente persuasiva com as seguintes informações:
-
-📦 **Produto:** ${name}
-🎯 **Nicho:** ${niche || 'Geral'}
-⭐ **Características:** ${features || 'Não especificadas'}
-🏪 **Plataforma:** ${platform}
-🎨 **Tom da Copy:** ${tone}
-
-A descrição deve incluir:
-1. Título magnético para o produto
-2. Subtítulo com benefício principal
-3. Descrição persuasiva com gatilhos mentais (urgência, escassez, prova social)
-4. Lista de benefícios em bullet points
-5. CTA (Call to Action) final poderoso
-6. Tags/palavras-chave para SEO
-
-Formate tudo em Markdown, pronto para copiar e usar na loja.`;
+    const prompt = 'Crie uma descrição de produto completa e altamente persuasiva com as seguintes informações:\n\n' +
+        '📦 **Produto:** ' + name + '\n' +
+        '🎯 **Nicho:** ' + niche + '\n' +
+        '⭐ **Características:** ' + (features || 'Não especificadas') + '\n' +
+        '🏪 **Plataforma:** ' + platform + '\n' +
+        '🎨 **Tom da Copy:** ' + tone + '\n\n' +
+        'A descrição deve incluir:\n' +
+        '1. Título magnético para o produto\n' +
+        '2. Subtítulo com benefício principal\n' +
+        '3. Descrição persuasiva com gatilhos mentais (urgência, escassez, prova social)\n' +
+        '4. Lista de benefícios em bullet points\n' +
+        '5. CTA (Call to Action) final poderoso\n' +
+        '6. Tags/palavras-chave para SEO\n\n' +
+        'Formate tudo em Markdown, pronto para copiar e usar na loja.';
 
     sendToAPI('copy', prompt);
 }
@@ -924,11 +1016,13 @@ Formate tudo em Markdown, pronto para copiar e usar na loja.`;
    ========================================================= */
 function mineAction(type) {
     const input = document.getElementById('input-mine');
+    const nicheCtx = state.storeProfile.niche ? ' (o usuário atua no nicho de ' + state.storeProfile.niche + ')' : '';
+
     const prompts = {
-        trending: 'Sugira 5 produtos em alta para dropshipping neste momento. Para cada produto, inclua: nome, nicho, faixa de preço sugerida, margem estimada, por que está em alta, e dicas de marketing. Foque em produtos com alto apelo visual e wow factor.',
+        trending: 'Sugira 5 produtos em alta para dropshipping neste momento' + nicheCtx + '. Para cada produto, inclua: nome, nicho, faixa de preço sugerida, margem estimada, por que está em alta, e dicas de marketing. Foque em produtos com alto apelo visual e wow factor.',
         niche: 'Analise o nicho de [DIGITE SEU NICHO AQUI] para dropshipping. Inclua: tamanho do mercado, nível de concorrência, margem média, sazonalidade, produtos recomendados, e estratégias de entrada.',
         validate: 'Valide o produto [DIGITE O PRODUTO AQUI] para dropshipping. Analise: potencial de venda, margem estimada, concorrência, facilidade de sourcing, apelo visual, resolução de problema, e dê uma nota de 0-10 com recomendação final.',
-        trends: 'Quais são as principais tendências de e-commerce e dropshipping para 2025? Inclua: nichos emergentes, mudanças no comportamento do consumidor, novas plataformas e ferramentas, estratégias de marketing em alta, e oportunidades de mercado.'
+        trends: 'Quais são as principais tendências de e-commerce e dropshipping para 2025?' + nicheCtx + ' Inclua: nichos emergentes, mudanças no comportamento do consumidor, novas plataformas e ferramentas, estratégias de marketing em alta, e oportunidades de mercado.'
     };
 
     const text = prompts[type];
@@ -942,34 +1036,112 @@ function mineAction(type) {
 }
 
 /* =========================================================
-   CALCULATOR
+   CALCULATOR - MODE SWITCHING
+   ========================================================= */
+function setCalcMode(mode) {
+    state.calcSettings.mode = mode;
+    syncCalcModeUI();
+    calculate();
+}
+
+function syncCalcModeUI() {
+    const mode = state.calcSettings.mode;
+
+    // Update calc page pills
+    document.querySelectorAll('#panel-calc .mode-pill').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.mode === mode);
+    });
+
+    // Show/hide mode-specific rows
+    document.getElementById('calc-mult-row').classList.toggle('hidden', mode !== 'multiplicador');
+    document.getElementById('calc-fixo-row').classList.toggle('hidden', mode !== 'fixo');
+
+    // Price field: read-only in auto modes
+    const priceInput = document.getElementById('calc-price');
+    const priceBadge = document.getElementById('calc-price-badge');
+    if (mode === 'manual') {
+        priceInput.readOnly = false;
+        priceInput.classList.remove('opacity-60');
+        priceBadge.classList.add('hidden');
+    } else {
+        priceInput.readOnly = true;
+        priceInput.classList.add('opacity-60');
+        priceBadge.classList.remove('hidden');
+    }
+
+    // Sync multiplier / fixedProfit input values from state
+    document.getElementById('calc-multiplier').value = state.calcSettings.multiplier;
+    document.getElementById('calc-fixed-profit').value = state.calcSettings.fixedProfit;
+
+    // Sync config pills
+    document.querySelectorAll('[data-cfgmode]').forEach(pill => {
+        pill.classList.toggle('active', pill.dataset.cfgmode === mode);
+    });
+    document.getElementById('cfg-mult-row').classList.toggle('hidden', mode !== 'multiplicador');
+    document.getElementById('cfg-fixo-row').classList.toggle('hidden', mode !== 'fixo');
+}
+
+function setCfgCalcMode(mode) {
+    state.calcSettings.mode = mode;
+    syncCalcModeUI();
+    calculate();
+}
+
+/* =========================================================
+   CALCULATOR - CALCULATION
    ========================================================= */
 function calculate() {
     const cost = parseFloat(document.getElementById('calc-cost').value) || 0;
     const shipping = parseFloat(document.getElementById('calc-shipping').value) || 0;
-    const price = parseFloat(document.getElementById('calc-price').value) || 0;
     const platformFee = parseFloat(document.getElementById('calc-platform-fee').value) || 0;
     const gatewayFee = parseFloat(document.getElementById('calc-gateway-fee').value) || 0;
     const ads = parseFloat(document.getElementById('calc-ads').value) || 0;
+    const mode = state.calcSettings.mode;
+
+    let price;
+    const priceInput = document.getElementById('calc-price');
+
+    if (mode === 'multiplicador') {
+        const mult = parseFloat(document.getElementById('calc-multiplier').value) || 1;
+        state.calcSettings.multiplier = mult;
+        price = (cost + shipping) * mult;
+        priceInput.value = price.toFixed(2);
+    } else if (mode === 'fixo') {
+        const desired = parseFloat(document.getElementById('calc-fixed-profit').value) || 0;
+        state.calcSettings.fixedProfit = desired;
+        // price - cost - shipping - (price * pf%) - (price * gf%) - ads = desired
+        // price * (1 - pf/100 - gf/100) = cost + shipping + ads + desired
+        const feeRate = 1 - (platformFee / 100) - (gatewayFee / 100);
+        if (feeRate > 0) {
+            price = (cost + shipping + ads + desired) / feeRate;
+        } else {
+            price = 0;
+        }
+        priceInput.value = price.toFixed(2);
+    } else {
+        price = parseFloat(priceInput.value) || 0;
+    }
 
     const platformCost = price * (platformFee / 100);
     const gatewayCost = price * (gatewayFee / 100);
     const totalCost = cost + shipping + platformCost + gatewayCost + ads;
     const profit = price - totalCost;
     const margin = price > 0 ? (profit / price) * 100 : 0;
-    const roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+    const invested = cost + shipping + ads;
+    const roi = invested > 0 ? (profit / invested) * 100 : 0;
 
     const fmt = (v) => 'R$ ' + v.toFixed(2).replace('.', ',');
 
     document.getElementById('res-revenue').textContent = fmt(price);
-    document.getElementById('res-total-cost').textContent = fmt(totalCost);
+    document.getElementById('res-base-cost').textContent = fmt(cost + shipping);
     document.getElementById('res-platform').textContent = fmt(platformCost);
     document.getElementById('res-gateway').textContent = fmt(gatewayCost);
+    document.getElementById('res-ads').textContent = fmt(ads);
+    document.getElementById('res-total-cost').textContent = fmt(totalCost);
     document.getElementById('res-profit').textContent = fmt(profit);
     document.getElementById('res-margin').textContent = margin.toFixed(1) + '%';
     document.getElementById('res-roi').textContent = roi.toFixed(1) + '%';
 
-    // Color coding
     const profitEl = document.getElementById('res-profit');
     const profitBg = document.getElementById('res-profit-bg');
     if (profit > 0) {
@@ -990,7 +1162,25 @@ function calculate() {
 }
 
 /* =========================================================
-   CONFIG
+   CONFIG - STORE PROFILE UI HELPERS
+   ========================================================= */
+function onCheckoutTypeChange() {
+    const val = document.getElementById('cfg-checkout-type').value;
+    document.getElementById('cfg-checkout-ext-row').classList.toggle('hidden', val !== 'externo');
+}
+
+function onPlatformChange() {
+    // Auto-sync platform to copywriter tab
+    const val = document.getElementById('cfg-platform').value;
+    const copyPlatformEl = document.getElementById('copy-platform');
+    if (val && copyPlatformEl) {
+        const opt = Array.from(copyPlatformEl.options).find(o => o.value === val);
+        if (opt) copyPlatformEl.value = val;
+    }
+}
+
+/* =========================================================
+   CONFIG - SAVE
    ========================================================= */
 function saveConfig() {
     const token = document.getElementById('cfg-token').value.trim();
@@ -1004,14 +1194,42 @@ function saveConfig() {
         return;
     }
 
+    // API
     state.apiToken = token;
     state.model = model || 'gpt-5.3-codex';
 
-    statusEl.textContent = 'Configurações salvas com sucesso!';
+    // Store Profile
+    state.storeProfile.platform = document.getElementById('cfg-platform').value;
+    state.storeProfile.checkoutType = document.getElementById('cfg-checkout-type').value;
+    state.storeProfile.checkoutExterno = document.getElementById('cfg-checkout-externo').value;
+    state.storeProfile.gateway = document.getElementById('cfg-gateway').value;
+    state.storeProfile.niche = document.getElementById('cfg-niche').value.trim();
+
+    // Calc settings from config
+    const cfgMult = parseFloat(document.getElementById('cfg-multiplier').value);
+    const cfgFixed = parseFloat(document.getElementById('cfg-fixed-profit').value);
+    if (!isNaN(cfgMult) && cfgMult >= 1) state.calcSettings.multiplier = cfgMult;
+    if (!isNaN(cfgFixed) && cfgFixed >= 0) state.calcSettings.fixedProfit = cfgFixed;
+
+    // Sync to calc page
+    syncCalcModeUI();
+    calculate();
+
+    // Auto-fill copywriter niche
+    if (state.storeProfile.niche) {
+        const copyNicheEl = document.getElementById('copy-niche');
+        if (copyNicheEl && !copyNicheEl.value) {
+            copyNicheEl.value = state.storeProfile.niche;
+        }
+    }
+
+    // Auto-fill copywriter platform
+    onPlatformChange();
+
+    statusEl.textContent = 'Todas as configurações salvas com sucesso!';
     statusEl.className = 'text-xs text-center text-green-400';
     statusEl.classList.remove('hidden');
     showToast('Configurações salvas!', 'fa-check-circle');
-
     setTimeout(() => statusEl.classList.add('hidden'), 3000);
 }
 
@@ -1034,7 +1252,6 @@ function autoResize(el) {
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 160) + 'px';
 }
-
 document.querySelectorAll('.chat-input').forEach(textarea => {
     textarea.addEventListener('input', function() { autoResize(this); });
 });
@@ -1044,13 +1261,9 @@ document.querySelectorAll('.chat-input').forEach(textarea => {
    ========================================================= */
 function showToast(message, icon, isError) {
     const toast = document.getElementById('toast');
-    const toastIcon = document.getElementById('toast-icon');
-    const toastText = document.getElementById('toast-text');
-
-    toastText.textContent = message;
-    toastIcon.className = 'fa-solid ' + (icon || 'fa-check-circle') + ' ' + (isError ? 'text-red-400' : 'text-green-400');
+    document.getElementById('toast-text').textContent = message;
+    document.getElementById('toast-icon').className = 'fa-solid ' + (icon || 'fa-check-circle') + ' ' + (isError ? 'text-red-400' : 'text-green-400');
     toast.classList.remove('hidden');
-
     clearTimeout(window._toastTimer);
     window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 2500);
 }
@@ -1064,7 +1277,6 @@ document.getElementById('setup-token').addEventListener('keydown', function(e) {
 document.getElementById('setup-model').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') handleSetup();
 });
-
 </script>
 </body>
 </html>
