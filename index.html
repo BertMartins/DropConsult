@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DropConsult Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Lexend', 'sans-serif'] },
+                    colors: {
+                        brand: { 50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309' },
+                        ink: { 950:'#06060c',900:'#0a0e1a',800:'#111827',700:'#1a2236',600:'#242d47',500:'#2e3a5a',400:'#8892a8',300:'#a0aec0',200:'#cbd5e1',100:'#e8ecf4',50:'#f4f6fa' }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root { --accent: #fbbf24; --accent-dim: #b45309; }
+        .dark { --bg: #0a0e1a; --surface: #111827; --surface2: #1a2236; --border: #242d47; --text: #e8ecf4; --muted: #8892a8; }
+        html:not(.dark) { --bg: #f4f6fa; --surface: #ffffff; --surface2: #e8ecf4; --border: #cbd5e1; --text: #0a0e1a; --muted: #64748b; }
+        body { background: var(--bg); color: var(--text); }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+        /* Animations */
+        @keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes pulse-dot { 0%,80%,100%{opacity:.3} 40%{opacity:1} }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+        @keyframes slideIn { from{transform:translateX(-100%);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes scaleIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+        .anim-fade-up { animation: fadeUp .4s ease-out both; }
+        .anim-scale-in { animation: scaleIn .3s ease-out both; }
+        .dot-pulse span { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); animation:pulse-dot 1.4s infinite; }
+        .dot-pulse span:nth-child(2) { animation-delay:.2s }
+        .dot-pulse span:nth-child(3) { animation-delay:.4s }
+
+        /* Setup BG */
+        .setup-bg {
+            background: linear-gradient(135deg, #0a0e1a 0%, #111827 40%, #1a2236 70%, #0a0e1a 100%);
+            position: relative; overflow: hidden;
+        }
+        .dark .setup-bg::before {
+            content:''; position:absolute; inset:0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(251,191,36,.07) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(251,191,36,.04) 0%, transparent 50%);
+        }
+        html:not(.dark) .setup-bg {
+            background: linear-gradient(135deg, #f4f6fa 0%, #e8ecf4 40%, #fef3c7 70%, #f4f6fa 100%);
+        }
+
+        /* Markdown Styles */
+        .md-content h1,.md-content h2,.md-content h3 { font-weight:600; margin:1em 0 .5em; }
+        .md-content h1 { font-size:1.3em; }
+        .md-content h2 { font-size:1.15em; }
+        .md-content h3 { font-size:1.05em; }
+        .md-content p { margin:.4em 0; line-height:1.7; }
+        .md-content ul,.md-content ol { margin:.5em 0; padding-left:1.5em; }
+        .md-content li { margin:.25em 0; line-height:1.6; }
+        .md-content ul li { list-style:disc; }
+        .md-content ol li { list-style:decimal; }
+        .md-content code { background:var(--surface2); padding:2px 6px; border-radius:4px; font-size:.9em; font-family:'Fira Code',monospace; }
+        .md-content pre { background:var(--surface2); padding:12px 16px; border-radius:8px; overflow-x:auto; margin:.6em 0; }
+        .md-content pre code { background:none; padding:0; }
+        .md-content strong { color: var(--accent); font-weight: 600; }
+        .md-content blockquote { border-left:3px solid var(--accent); padding-left:12px; margin:.5em 0; opacity:.85; }
+        .md-content a { color: var(--accent); text-decoration: underline; }
+        .md-content table { border-collapse:collapse; width:100%; margin:.6em 0; }
+        .md-content th,.md-content td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+        .md-content th { background:var(--surface2); font-weight:600; }
+
+        /* Chat bubble */
+        .bubble-user { background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%); color: #1a1a1a; }
+        .dark .bubble-ai { background: var(--surface2); }
+        html:not(.dark) .bubble-ai { background: #f1f5f9; color: #1a2236; }
+
+        /* Sidebar active */
+        .nav-item.active { background: linear-gradient(90deg, rgba(251,191,36,.15) 0%, transparent 100%); border-left:3px solid var(--accent); color:var(--accent); }
+        .dark .nav-item:not(.active):hover { background: rgba(255,255,255,.04); }
+        html:not(.dark) .nav-item:not(.active):hover { background: rgba(0,0,0,.04); }
+
+        /* Bottom nav active */
+        .bnav-item.active { color: var(--accent); }
+        .bnav-item.active::after { content:''; position:absolute; top:0; left:25%; right:25%; height:2px; background:var(--accent); border-radius:0 0 2px 2px; }
+
+        /* Custom textarea */
+        textarea.chat-input { resize:none; min-height:48px; max-height:160px; }
+
+        /* Card hover */
+        .action-card { transition: all .2s ease; }
+        .action-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(251,191,36,.12); border-color: var(--accent) !important; }
+
+        /* Custom input styles */
+        .form-input { background:var(--surface); border:1px solid var(--border); color:var(--text); transition:border-color .2s; }
+        .form-input:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 3px rgba(251,191,36,.15); }
+        .form-input::placeholder { color:var(--muted); }
+    </style>
+</head>
+<body class="font-sans antialiased overflow-hidden h-screen">
+<script>
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        e.matches ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+    });
+</script>
+
+<!-- ===================== SETUP SCREEN ===================== -->
+<div id="setup-screen" class="setup-bg fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="relative z-10 w-full max-w-md anim-scale-in">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-rocket text-ink-950 text-xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold tracking-tight">
+                    <span class="text-brand-400">Drop</span><span>Consult</span>
+                    <span class="text-xs font-semibold bg-brand-400 text-ink-950 px-2 py-0.5 rounded-full ml-1 align-top">PRO</span>
+                </h1>
+            </div>
+            <p class="text-[var(--muted)] text-sm leading-relaxed max-w-xs mx-auto">
+                Seu consultor inteligente para Dropshipping, E-commerce e Marketing Digital.
+            </p>
+        </div>
+
+        <div class="rounded-2xl p-6 border" style="background:var(--surface);border-color:var(--border)">
+            <label class="block text-sm font-medium mb-2 text-[var(--muted)]">
+                <i class="fa-solid fa-key mr-1 text-brand-400"></i> Token da API Poe
+            </label>
+            <input id="setup-token" type="password" placeholder="Insira seu token da API..."
+                class="form-input w-full rounded-xl px-4 py-3 text-base mb-3" >
+
+            <label class="block text-sm font-medium mb-2 text-[var(--muted)]">
+                <i class="fa-solid fa-brain mr-1 text-brand-400"></i> Modelo da IA
+            </label>
+            <input id="setup-model" type="text" value="gpt-5.3-codex" placeholder="Ex: gpt-5.3-codex"
+                class="form-input w-full rounded-xl px-4 py-3 text-base mb-5" >
+
+            <button onclick="handleSetup()" id="setup-btn"
+                class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 text-ink-950 font-semibold text-base hover:from-brand-300 hover:to-brand-500 transition-all active:scale-[.98] flex items-center justify-center gap-2">
+                <i class="fa-solid fa-arrow-right"></i> Iniciar Consultoria
+            </button>
+            <p id="setup-error" class="text-red-400 text-xs mt-3 hidden text-center"></p>
+        </div>
+
+        <p class="text-center text-[var(--muted)] text-xs mt-4 opacity-60">
+            Seus dados ficam apenas nesta sessão e nunca são armazenados.
+        </p>
+    </div>
+</div>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="main-app" class="hidden h-screen flex">
+
+    <!-- === SIDEBAR (Desktop) === -->
+    <aside class="hidden lg:flex flex-col w-60 border-r shrink-0" style="background:var(--surface);border-color:var(--border)">
+        <div class="p-5 flex items-center gap-2.5 border-b" style="border-color:var(--border)">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center">
+                <i class="fa-solid fa-rocket text-ink-950 text-sm"></i>
+            </div>
+            <span class="font-bold text-lg tracking-tight"><span class="text-brand-400">Drop</span>Consult</span>
+        </div>
+        <nav class="flex-1 py-3 flex flex-col gap-0.5 px-2" id="sidebar-nav">
+            <button class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left transition-all" data-tab="chat">
+                <i class="fa-solid fa-comments w-5 text-center"></i> Consultor IA
+            </button>
+            <button class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left transition-all" data-tab="copy">
+                <i class="fa-solid fa-pen-fancy w-5 text-center"></i> Copywriter
+            </button>
+            <button class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left transition-all" data-tab="mine">
+                <i class="fa-solid fa-gem w-5 text-center"></i> Mineração
+            </button>
+            <button class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left transition-all" data-tab="calc">
+                <i class="fa-solid fa-calculator w-5 text-center"></i> Calculadora
+            </button>
+            <div class="flex-1"></div>
+            <button class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left transition-all" data-tab="config">
+                <i class="fa-solid fa-gear w-5 text-center"></i> Configurações
+            </button>
+        </nav>
+    </aside>
+
+    <!-- === CONTENT === -->
+    <main class="flex-1 flex flex-col min-w-0 pb-16 lg:pb-0">
+
+        <!-- ====== TAB: CHAT ====== -->
+        <section id="panel-chat" class="flex-1 flex flex-col min-h-0">
+            <header class="px-5 py-3.5 border-b flex items-center gap-3 shrink-0" style="border-color:var(--border)">
+                <div class="w-8 h-8 rounded-lg bg-brand-400/15 flex items-center justify-center"><i class="fa-solid fa-comments text-brand-400 text-sm"></i></div>
+                <div>
+                    <h2 class="font-semibold text-sm">Consultor de Dropshipping</h2>
+                    <p class="text-xs text-[var(--muted)]">Tire todas as suas dúvidas</p>
+                </div>
+                <button onclick="clearChat('chat')" class="ml-auto text-[var(--muted)] hover:text-brand-400 text-xs flex items-center gap-1 transition-colors" title="Limpar conversa">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </header>
+            <div id="messages-chat" class="flex-1 overflow-y-auto px-4 py-4 space-y-4"></div>
+            <div class="shrink-0 px-4 py-3 border-t" style="border-color:var(--border)">
+                <div class="flex gap-2 items-end max-w-3xl mx-auto">
+                    <textarea id="input-chat" class="chat-input form-input flex-1 rounded-xl px-4 py-3 text-base leading-snug"
+                        placeholder="Pergunte sobre dropshipping..." rows="1"
+                        onkeydown="handleChatKey(event,'chat')"></textarea>
+                    <button onclick="sendFromTab('chat')" class="shrink-0 w-11 h-11 rounded-xl bg-brand-400 text-ink-950 flex items-center justify-center hover:bg-brand-300 transition-colors active:scale-95">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====== TAB: COPYWRITER ====== -->
+        <section id="panel-copy" class="hidden flex-1 flex flex-col min-h-0">
+            <header class="px-5 py-3.5 border-b flex items-center gap-3 shrink-0" style="border-color:var(--border)">
+                <div class="w-8 h-8 rounded-lg bg-brand-400/15 flex items-center justify-center"><i class="fa-solid fa-pen-fancy text-brand-400 text-sm"></i></div>
+                <div>
+                    <h2 class="font-semibold text-sm">Copywriter de Produtos</h2>
+                    <p class="text-xs text-[var(--muted)]">Gere descrições que vendem</p>
+                </div>
+                <button onclick="clearChat('copy')" class="ml-auto text-[var(--muted)] hover:text-brand-400 text-xs flex items-center gap-1 transition-colors" title="Limpar conversa">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </header>
+            <div id="messages-copy" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                <!-- Copy form card -->
+                <div id="copy-form-card" class="max-w-2xl mx-auto rounded-2xl p-5 border anim-fade-up" style="background:var(--surface);border-color:var(--border)">
+                    <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Gerador de Descrição</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                        <div>
+                            <label class="text-xs text-[var(--muted)] mb-1 block">Nome do Produto</label>
+                            <input id="copy-name" class="form-input w-full rounded-lg px-3 py-2.5 text-base" placeholder="Ex: Fone Bluetooth X9" >
+                        </div>
+                        <div>
+                            <label class="text-xs text-[var(--muted)] mb-1 block">Nicho</label>
+                            <input id="copy-niche" class="form-input w-full rounded-lg px-3 py-2.5 text-base" placeholder="Ex: Tecnologia, Fitness..." >
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-xs text-[var(--muted)] mb-1 block">Características Principais</label>
+                        <textarea id="copy-features" class="form-input w-full rounded-lg px-3 py-2.5 text-base" rows="2" placeholder="Descreva as características do produto..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label class="text-xs text-[var(--muted)] mb-1 block">Plataforma</label>
+                            <select id="copy-platform" class="form-input w-full rounded-lg px-3 py-2.5 text-base">
+                                <option value="NuvemShop">NuvemShop</option>
+                                <option value="Shopify">Shopify</option>
+                                <option value="Outro">Outra</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs text-[var(--muted)] mb-1 block">Tom da Copy</label>
+                            <select id="copy-tone" class="form-input w-full rounded-lg px-3 py-2.5 text-base">
+                                <option value="Persuasivo e chamativo">Persuasivo</option>
+                                <option value="Urgente e escassez">Urgente</option>
+                                <option value="Premium e sofisticado">Premium</option>
+                                <option value="Informativo e detalhado">Informativo</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="generateCopy()" id="copy-gen-btn"
+                        class="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 text-ink-950 font-semibold text-sm hover:from-brand-300 hover:to-brand-500 transition-all active:scale-[.98] flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Descrição
+                    </button>
+                </div>
+            </div>
+            <div class="shrink-0 px-4 py-3 border-t" style="border-color:var(--border)">
+                <div class="flex gap-2 items-end max-w-3xl mx-auto">
+                    <textarea id="input-copy" class="chat-input form-input flex-1 rounded-xl px-4 py-3 text-base leading-snug"
+                        placeholder="Peça ajustes na descrição..." rows="1"
+                        onkeydown="handleChatKey(event,'copy')"></textarea>
+                    <button onclick="sendFromTab('copy')" class="shrink-0 w-11 h-11 rounded-xl bg-brand-400 text-ink-950 flex items-center justify-center hover:bg-brand-300 transition-colors active:scale-95">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====== TAB: MINING ====== -->
+        <section id="panel-mine" class="hidden flex-1 flex flex-col min-h-0">
+            <header class="px-5 py-3.5 border-b flex items-center gap-3 shrink-0" style="border-color:var(--border)">
+                <div class="w-8 h-8 rounded-lg bg-brand-400/15 flex items-center justify-center"><i class="fa-solid fa-gem text-brand-400 text-sm"></i></div>
+                <div>
+                    <h2 class="font-semibold text-sm">Mineração de Produtos</h2>
+                    <p class="text-xs text-[var(--muted)]">Encontre produtos vencedores</p>
+                </div>
+                <button onclick="clearChat('mine')" class="ml-auto text-[var(--muted)] hover:text-brand-400 text-xs flex items-center gap-1 transition-colors" title="Limpar conversa">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </header>
+            <div id="messages-mine" class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+                <!-- Quick action cards -->
+                <div id="mine-cards" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto anim-fade-up">
+                    <button onclick="mineAction('trending')" class="action-card p-4 rounded-xl border text-left" style="background:var(--surface);border-color:var(--border)">
+                        <div class="flex items-center gap-2 mb-2"><span class="text-lg">🔥</span><span class="font-semibold text-sm">Produtos em Alta</span></div>
+                        <p class="text-xs text-[var(--muted)] leading-relaxed">Descubra 5 produtos com alto potencial de venda agora</p>
+                    </button>
+                    <button onclick="mineAction('niche')" class="action-card p-4 rounded-xl border text-left" style="background:var(--surface);border-color:var(--border)">
+                        <div class="flex items-center gap-2 mb-2"><span class="text-lg">🎯</span><span class="font-semibold text-sm">Analisar Nicho</span></div>
+                        <p class="text-xs text-[var(--muted)] leading-relaxed">Análise completa de concorrência e potencial de um nicho</p>
+                    </button>
+                    <button onclick="mineAction('validate')" class="action-card p-4 rounded-xl border text-left" style="background:var(--surface);border-color:var(--border)">
+                        <div class="flex items-center gap-2 mb-2"><span class="text-lg">✅</span><span class="font-semibold text-sm">Validar Produto</span></div>
+                        <p class="text-xs text-[var(--muted)] leading-relaxed">Avalie se um produto tem potencial para dropshipping</p>
+                    </button>
+                    <button onclick="mineAction('trends')" class="action-card p-4 rounded-xl border text-left" style="background:var(--surface);border-color:var(--border)">
+                        <div class="flex items-center gap-2 mb-2"><span class="text-lg">📊</span><span class="font-semibold text-sm">Tendências 2025</span></div>
+                        <p class="text-xs text-[var(--muted)] leading-relaxed">Principais tendências de e-commerce e dropshipping</p>
+                    </button>
+                </div>
+            </div>
+            <div class="shrink-0 px-4 py-3 border-t" style="border-color:var(--border)">
+                <div class="flex gap-2 items-end max-w-3xl mx-auto">
+                    <textarea id="input-mine" class="chat-input form-input flex-1 rounded-xl px-4 py-3 text-base leading-snug"
+                        placeholder="Pergunte sobre produtos e nichos..." rows="1"
+                        onkeydown="handleChatKey(event,'mine')"></textarea>
+                    <button onclick="sendFromTab('mine')" class="shrink-0 w-11 h-11 rounded-xl bg-brand-400 text-ink-950 flex items-center justify-center hover:bg-brand-300 transition-colors active:scale-95">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====== TAB: CALCULATOR ====== -->
+        <section id="panel-calc" class="hidden flex-1 flex flex-col min-h-0">
+            <header class="px-5 py-3.5 border-b flex items-center gap-3 shrink-0" style="border-color:var(--border)">
+                <div class="w-8 h-8 rounded-lg bg-brand-400/15 flex items-center justify-center"><i class="fa-solid fa-calculator text-brand-400 text-sm"></i></div>
+                <div>
+                    <h2 class="font-semibold text-sm">Calculadora de Lucro</h2>
+                    <p class="text-xs text-[var(--muted)]">Calcule suas margens com precisão</p>
+                </div>
+            </header>
+            <div class="flex-1 overflow-y-auto px-4 py-6">
+                <div class="max-w-lg mx-auto space-y-5 anim-fade-up">
+                    <!-- Inputs -->
+                    <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
+                        <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-coins text-brand-400"></i> Custos e Preço</h3>
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-[var(--muted)] mb-1 block">Custo do Produto (R$)</label>
+                                    <input id="calc-cost" type="number" step="0.01" value="25" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                                </div>
+                                <div>
+                                    <label class="text-xs text-[var(--muted)] mb-1 block">Frete Fornecedor (R$)</label>
+                                    <input id="calc-shipping" type="number" step="0.01" value="15" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Preço de Venda (R$)</label>
+                                <input id="calc-price" type="number" step="0.01" value="149.90" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-[var(--muted)] mb-1 block">Taxa Plataforma (%)</label>
+                                    <input id="calc-platform-fee" type="number" step="0.1" value="3.49" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                                </div>
+                                <div>
+                                    <label class="text-xs text-[var(--muted)] mb-1 block">Taxa Gateway (%)</label>
+                                    <input id="calc-gateway-fee" type="number" step="0.1" value="4.99" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Custo de Ads por Venda (R$)</label>
+                                <input id="calc-ads" type="number" step="0.01" value="30" class="form-input w-full rounded-lg px-3 py-2.5 text-base" oninput="calculate()" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
+                        <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-brand-400"></i> Resultados</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
+                                <span class="text-sm text-[var(--muted)]">Receita</span>
+                                <span id="res-revenue" class="font-semibold">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
+                                <span class="text-sm text-[var(--muted)]">Custo Total</span>
+                                <span id="res-total-cost" class="font-semibold text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
+                                <span class="text-sm text-[var(--muted)]">Taxa Plataforma</span>
+                                <span id="res-platform" class="text-sm text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b" style="border-color:var(--border)">
+                                <span class="text-sm text-[var(--muted)]">Taxa Gateway</span>
+                                <span id="res-gateway" class="text-sm text-red-400">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-3 rounded-xl px-3 mt-2" id="res-profit-bg" style="background:var(--surface2)">
+                                <span class="font-semibold">Lucro Líquido</span>
+                                <span id="res-profit" class="font-bold text-lg">R$ 0,00</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 mt-2">
+                                <div class="text-center p-3 rounded-xl" style="background:var(--surface2)">
+                                    <div class="text-xs text-[var(--muted)] mb-1">Margem de Lucro</div>
+                                    <div id="res-margin" class="font-bold text-lg text-brand-400">0%</div>
+                                </div>
+                                <div class="text-center p-3 rounded-xl" style="background:var(--surface2)">
+                                    <div class="text-xs text-[var(--muted)] mb-1">ROI</div>
+                                    <div id="res-roi" class="font-bold text-lg text-brand-400">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ====== TAB: CONFIG ====== -->
+        <section id="panel-config" class="hidden flex-1 flex flex-col min-h-0">
+            <header class="px-5 py-3.5 border-b flex items-center gap-3 shrink-0" style="border-color:var(--border)">
+                <div class="w-8 h-8 rounded-lg bg-brand-400/15 flex items-center justify-center"><i class="fa-solid fa-gear text-brand-400 text-sm"></i></div>
+                <div>
+                    <h2 class="font-semibold text-sm">Configurações</h2>
+                    <p class="text-xs text-[var(--muted)]">Gerencie sua conexão com a API</p>
+                </div>
+            </header>
+            <div class="flex-1 overflow-y-auto px-4 py-6">
+                <div class="max-w-lg mx-auto space-y-5 anim-fade-up">
+                    <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
+                        <h3 class="font-semibold text-sm mb-4 flex items-center gap-2"><i class="fa-solid fa-key text-brand-400"></i> API</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Token da API Poe</label>
+                                <div class="flex gap-2">
+                                    <input id="cfg-token" type="password" class="form-input flex-1 rounded-lg px-3 py-2.5 text-base" >
+                                    <button onclick="toggleTokenVisibility()" class="px-3 rounded-lg border flex items-center justify-center text-[var(--muted)] hover:text-brand-400 transition-colors" style="border-color:var(--border)">
+                                        <i id="cfg-eye" class="fa-solid fa-eye text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[var(--muted)] mb-1 block">Modelo da IA</label>
+                                <input id="cfg-model" type="text" class="form-input w-full rounded-lg px-3 py-2.5 text-base" placeholder="Ex: gpt-5.3-codex" >
+                            </div>
+                            <button onclick="saveConfig()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 text-ink-950 font-semibold text-sm hover:from-brand-300 hover:to-brand-500 transition-all active:scale-[.98] flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar Configurações
+                            </button>
+                            <p id="cfg-status" class="text-xs text-center hidden"></p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
+                        <h3 class="font-semibold text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info text-brand-400"></i> Sobre</h3>
+                        <p class="text-sm text-[var(--muted)] leading-relaxed">
+                            <strong class="text-[var(--text)]">DropConsult Pro</strong> é um sistema de consultoria inteligente para Dropshipping e E-commerce.
+                            Ele utiliza IA para oferecer suporte em estratégias de venda, copywriting, mineração de produtos, funis de venda e muito mais.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- === BOTTOM NAV (Mobile) === -->
+<nav id="bottom-nav" class="hidden fixed bottom-0 left-0 right-0 lg:hidden border-t z-40" style="background:var(--surface);border-color:var(--border)">
+    <div class="flex justify-around items-center h-16">
+        <button class="bnav-item active relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="chat">
+            <i class="fa-solid fa-comments text-base"></i>
+            <span class="text-[10px] font-medium">Chat</span>
+        </button>
+        <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="copy">
+            <i class="fa-solid fa-pen-fancy text-base"></i>
+            <span class="text-[10px] font-medium">Copy</span>
+        </button>
+        <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="mine">
+            <i class="fa-solid fa-gem text-base"></i>
+            <span class="text-[10px] font-medium">Mineração</span>
+        </button>
+        <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="calc">
+            <i class="fa-solid fa-calculator text-base"></i>
+            <span class="text-[10px] font-medium">Calc</span>
+        </button>
+        <button class="bnav-item relative flex flex-col items-center justify-center gap-0.5 flex-1 h-full text-[var(--muted)] transition-colors" data-tab="config">
+            <i class="fa-solid fa-gear text-base"></i>
+            <span class="text-[10px] font-medium">Config</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ===================== TOAST ===================== -->
+<div id="toast" class="fixed top-4 right-4 z-[999] hidden">
+    <div class="rounded-xl px-4 py-3 shadow-lg border flex items-center gap-2 anim-scale-in text-sm" style="background:var(--surface);border-color:var(--border)">
+        <i id="toast-icon" class="fa-solid fa-check-circle text-green-400"></i>
+        <span id="toast-text"></span>
+    </div>
+</div>
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+    apiToken: '',
+    model: 'gpt-5.3-codex',
+    activeTab: 'chat',
+    streaming: { chat: false, copy: false, mine: false },
+    abortControllers: { chat: null, copy: null, mine: null },
+    conversations: {
+        chat: [],
+        copy: [],
+        mine: []
+    }
+};
+
+/* =========================================================
+   SYSTEM PROMPTS
+   ========================================================= */
+const SYSTEM_PROMPTS = {
+    chat: `Você é um Especialista Sênior em Dropshipping, E-commerce e Marketing Digital. Seu conhecimento abrange:
+
+Estratégias de Venda: Marketing digital, mineração de produtos, funis de venda e estratégias de Order Bump, Upsell e Downsell.
+
+Plataformas de E-commerce: Domínio completo sobre NuvemShop e Shopify.
+
+Checkouts e Gateways de Pagamento: CartPanda, Yampi, Mercado Pago, Nuvem Pago e Appmax.
+
+Aplicativos de Integração: Experiência com Dropi e similares.
+
+Operação e Copywriting: Você sabe ensinar como cadastrar produtos manualmente e é um especialista em criar e melhorar descrições de produtos, aplicando técnicas de copy para deixá-las extremamente chamativas e com alta taxa de conversão.
+
+Sua missão é atuar como um consultor, respondendo dúvidas e criando soluções práticas para o usuário. Responda sempre em português brasileiro de forma clara, objetiva e profissional. Use formatação Markdown para organizar suas respostas.`,
+
+    copy: `Você é um Copywriter Especialista em E-commerce e Dropshipping. Sua missão é criar e melhorar descrições de produtos que sejam extremamente chamativas, persuasivas e com alta taxa de conversão.
+
+Você domina:
+- Técnicas de copywriting (AIDA, PAS, storytelling)
+- Gatilhos mentais (urgência, escassez, prova social, autoridade, reciprocidade)
+- SEO para e-commerce
+- Formatação otimizada para NuvemShop e Shopify
+- Criação de títulos magnéticos
+- Bullet points que vendem
+
+Sempre entregue descrições formatadas em Markdown, prontas para copiar e usar. Inclua: título do produto, subtítulo, descrição principal com gatilhos mentais, bullet points de benefícios, e um CTA final. Responda sempre em português brasileiro.`,
+
+    mine: `Você é um Especialista em Mineração de Produtos para Dropshipping. Seu foco é ajudar a encontrar e validar produtos vencedores.
+
+Você domina:
+- Análise de tendências de mercado
+- Critérios de seleção de produtos (margem, apelo visual, resolução de problema, wow factor)
+- Análise de concorrência
+- Validação de nichos
+- Estratégias de sourcing (AliExpress, CJ Dropshipping, fornecedores nacionais)
+- Análise de sazonalidade
+- Métricas de produto vencedor
+
+Sempre forneça análises detalhadas com prós e contras, estimativas de margem e recomendações práticas. Use formatação Markdown. Responda sempre em português brasileiro.`
+};
+
+/* =========================================================
+   WELCOME MESSAGES
+   ========================================================= */
+const WELCOME_MESSAGES = {
+    chat: `Olá! 👋 Sou seu **consultor especialista** em Dropshipping e E-commerce.
+
+Posso ajudar com:
+- 🎯 Estratégias de venda e marketing digital
+- 🏪 Configuração de lojas (NuvemShop, Shopify)
+- 💳 Checkouts e gateways de pagamento
+- 📦 Operação e logística de dropshipping
+- ✍️ Copywriting e descrições de produtos
+- 📈 Funis de venda, Upsell e Order Bump
+
+**Como posso ajudar você hoje?**`,
+
+    copy: `Olá! ✍️ Sou seu **especialista em copywriting** para e-commerce.
+
+Preencha o formulário acima para gerar uma descrição persuasiva de produto, ou me envie qualquer texto de produto que deseja melhorar!
+
+Posso criar:
+- 📝 Descrições completas com gatilhos mentais
+- 🎯 Títulos magnéticos que atraem cliques
+- ⚡ Bullet points que convertem
+- 🛒 CTAs poderosos`,
+
+    mine: `Olá! 💎 Sou seu **especialista em mineração** de produtos.
+
+Use os cards acima para ações rápidas ou me pergunte diretamente sobre qualquer nicho ou produto!`
+};
+
+/* =========================================================
+   MARKED CONFIG
+   ========================================================= */
+marked.setOptions({ breaks: true, gfm: true });
+
+/* =========================================================
+   SETUP
+   ========================================================= */
+function handleSetup() {
+    const token = document.getElementById('setup-token').value.trim();
+    const model = document.getElementById('setup-model').value.trim();
+    const errEl = document.getElementById('setup-error');
+
+    if (!token) {
+        errEl.textContent = 'Por favor, insira o token da API.';
+        errEl.classList.remove('hidden');
+        return;
+    }
+
+    state.apiToken = token;
+    state.model = model || 'gpt-5.3-codex';
+
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    document.getElementById('main-app').classList.add('flex');
+    document.getElementById('bottom-nav').classList.remove('hidden');
+
+    // Populate config fields
+    document.getElementById('cfg-token').value = state.apiToken;
+    document.getElementById('cfg-model').value = state.model;
+
+    // Init all tabs
+    initWelcomeMessages();
+    calculate();
+}
+
+function initWelcomeMessages() {
+    for (const tab of ['chat', 'copy', 'mine']) {
+        addBotMessage(tab, WELCOME_MESSAGES[tab]);
+    }
+}
+
+/* =========================================================
+   TAB NAVIGATION
+   ========================================================= */
+function switchTab(tab) {
+    state.activeTab = tab;
+
+    // Hide all panels
+    document.querySelectorAll('[id^="panel-"]').forEach(el => el.classList.add('hidden'));
+    document.getElementById('panel-' + tab).classList.remove('hidden');
+
+    // Update sidebar
+    document.querySelectorAll('#sidebar-nav .nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+
+    // Update bottom nav
+    document.querySelectorAll('#bottom-nav .bnav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+
+    // Scroll to bottom of chat
+    const msgContainer = document.getElementById('messages-' + tab);
+    if (msgContainer) {
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+}
+
+// Bind tab clicks
+document.querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+/* =========================================================
+   CHAT ENGINE
+   ========================================================= */
+function addUserMessage(tab, text) {
+    const container = document.getElementById('messages-' + tab);
+    const div = document.createElement('div');
+    div.className = 'flex justify-end anim-fade-up';
+    div.innerHTML = `
+        <div class="bubble-user rounded-2xl rounded-br-md px-4 py-2.5 max-w-[80%] text-sm leading-relaxed shadow-sm">
+            ${escapeHtml(text)}
+        </div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function addBotMessage(tab, content, isComplete) {
+    const container = document.getElementById('messages-' + tab);
+    const div = document.createElement('div');
+    div.className = 'flex justify-start anim-fade-up';
+    const id = 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+    div.innerHTML = `
+        <div class="flex gap-2.5 max-w-[88%]">
+            <div class="w-7 h-7 rounded-lg bg-brand-400/15 flex items-center justify-center shrink-0 mt-1">
+                <i class="fa-solid fa-robot text-brand-400 text-xs"></i>
+            </div>
+            <div class="bubble-ai rounded-2xl rounded-bl-md px-4 py-3 text-sm leading-relaxed shadow-sm min-w-[40px]">
+                <div id="${id}" class="md-content">${isComplete !== false ? renderMarkdown(content) : '<div class="dot-pulse"><span></span><span></span><span></span></div>'}</div>
+            </div>
+        </div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+function updateBotMessage(elementId, content) {
+    const el = document.getElementById(elementId);
+    if (el) {
+        el.innerHTML = renderMarkdown(content);
+        const container = el.closest('[id^="messages-"]');
+        if (container) container.scrollTop = container.scrollHeight;
+    }
+}
+
+function renderMarkdown(text) {
+    if (!text) return '';
+    try {
+        return marked.parse(text);
+    } catch (e) {
+        return escapeHtml(text);
+    }
+}
+
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+/* =========================================================
+   API COMMUNICATION (Streaming)
+   ========================================================= */
+async function sendToAPI(tab, userText) {
+    if (state.streaming[tab]) return;
+    state.streaming[tab] = true;
+
+    // Add user message to conversation
+    state.conversations[tab].push({ role: 'user', content: userText });
+
+    // Show user message in UI
+    addUserMessage(tab, userText);
+
+    // Show loading placeholder
+    const msgId = addBotMessage(tab, '', false);
+
+    // Build messages array
+    const messages = [
+        { role: 'system', content: SYSTEM_PROMPTS[tab] },
+        ...state.conversations[tab]
+    ];
+
+    const controller = new AbortController();
+    state.abortControllers[tab] = controller;
+
+    let fullContent = '';
+
+    try {
+        const response = await fetch('https://api.poe.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + state.apiToken
+            },
+            body: JSON.stringify({
+                model: state.model,
+                messages: messages,
+                stream: true
+            }),
+            signal: controller.signal
+        });
+
+        if (!response.ok) {
+            const errText = await response.text().catch(() => 'Erro desconhecido');
+            throw new Error('Erro ' + response.status + ': ' + errText);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() || '';
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || !trimmed.startsWith('data:')) continue;
+                const data = trimmed.slice(5).trim();
+                if (data === '[DONE]') continue;
+
+                try {
+                    const parsed = JSON.parse(data);
+                    const delta = parsed.choices && parsed.choices[0] && parsed.choices[0].delta;
+                    if (delta && delta.content) {
+                        fullContent += delta.content;
+                        updateBotMessage(msgId, fullContent);
+                    }
+                } catch (_e) {
+                    // skip invalid JSON chunks
+                }
+            }
+        }
+
+        // Handle non-streaming response
+        if (!fullContent && buffer) {
+            try {
+                const parsed = JSON.parse(buffer);
+                if (parsed.choices && parsed.choices[0] && parsed.choices[0].message) {
+                    fullContent = parsed.choices[0].message.content;
+                    updateBotMessage(msgId, fullContent);
+                }
+            } catch (_e) {
+                // ignore
+            }
+        }
+
+        if (!fullContent) {
+            fullContent = 'Não foi possível obter uma resposta. Verifique seu token e modelo nas configurações.';
+            updateBotMessage(msgId, fullContent);
+        }
+
+        // Save assistant reply
+        state.conversations[tab].push({ role: 'assistant', content: fullContent });
+
+    } catch (err) {
+        if (err.name === 'AbortError') {
+            fullContent = fullContent || '_Geração interrompida._';
+        } else {
+            fullContent = '**Erro:** ' + err.message + '\n\nVerifique seu token da API e o modelo nas configurações.';
+        }
+        updateBotMessage(msgId, fullContent);
+        if (err.name !== 'AbortError') {
+            state.conversations[tab].push({ role: 'assistant', content: fullContent });
+        }
+    } finally {
+        state.streaming[tab] = false;
+        state.abortControllers[tab] = null;
+    }
+}
+
+/* =========================================================
+   CHAT ACTIONS
+   ========================================================= */
+function sendFromTab(tab) {
+    const input = document.getElementById('input-' + tab);
+    const text = input.value.trim();
+    if (!text || state.streaming[tab]) return;
+    input.value = '';
+    autoResize(input);
+    sendToAPI(tab, text);
+}
+
+function handleChatKey(event, tab) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendFromTab(tab);
+    }
+}
+
+function clearChat(tab) {
+    state.conversations[tab] = [];
+    const container = document.getElementById('messages-' + tab);
+
+    // For copy tab, preserve the form card
+    if (tab === 'copy') {
+        const formCard = document.getElementById('copy-form-card');
+        container.innerHTML = '';
+        if (formCard) container.appendChild(formCard);
+    } else if (tab === 'mine') {
+        const mineCards = document.getElementById('mine-cards');
+        container.innerHTML = '';
+        if (mineCards) container.appendChild(mineCards);
+    } else {
+        container.innerHTML = '';
+    }
+
+    // Re-add welcome message
+    addBotMessage(tab, WELCOME_MESSAGES[tab]);
+    showToast('Conversa limpa!', 'fa-broom');
+}
+
+/* =========================================================
+   COPYWRITER TAB
+   ========================================================= */
+function generateCopy() {
+    const name = document.getElementById('copy-name').value.trim();
+    const niche = document.getElementById('copy-niche').value.trim();
+    const features = document.getElementById('copy-features').value.trim();
+    const platform = document.getElementById('copy-platform').value;
+    const tone = document.getElementById('copy-tone').value;
+
+    if (!name) {
+        showToast('Preencha o nome do produto!', 'fa-exclamation-triangle', true);
+        return;
+    }
+
+    const prompt = `Crie uma descrição de produto completa e altamente persuasiva com as seguintes informações:
+
+📦 **Produto:** ${name}
+🎯 **Nicho:** ${niche || 'Geral'}
+⭐ **Características:** ${features || 'Não especificadas'}
+🏪 **Plataforma:** ${platform}
+🎨 **Tom da Copy:** ${tone}
+
+A descrição deve incluir:
+1. Título magnético para o produto
+2. Subtítulo com benefício principal
+3. Descrição persuasiva com gatilhos mentais (urgência, escassez, prova social)
+4. Lista de benefícios em bullet points
+5. CTA (Call to Action) final poderoso
+6. Tags/palavras-chave para SEO
+
+Formate tudo em Markdown, pronto para copiar e usar na loja.`;
+
+    sendToAPI('copy', prompt);
+}
+
+/* =========================================================
+   MINING TAB
+   ========================================================= */
+function mineAction(type) {
+    const input = document.getElementById('input-mine');
+    const prompts = {
+        trending: 'Sugira 5 produtos em alta para dropshipping neste momento. Para cada produto, inclua: nome, nicho, faixa de preço sugerida, margem estimada, por que está em alta, e dicas de marketing. Foque em produtos com alto apelo visual e wow factor.',
+        niche: 'Analise o nicho de [DIGITE SEU NICHO AQUI] para dropshipping. Inclua: tamanho do mercado, nível de concorrência, margem média, sazonalidade, produtos recomendados, e estratégias de entrada.',
+        validate: 'Valide o produto [DIGITE O PRODUTO AQUI] para dropshipping. Analise: potencial de venda, margem estimada, concorrência, facilidade de sourcing, apelo visual, resolução de problema, e dê uma nota de 0-10 com recomendação final.',
+        trends: 'Quais são as principais tendências de e-commerce e dropshipping para 2025? Inclua: nichos emergentes, mudanças no comportamento do consumidor, novas plataformas e ferramentas, estratégias de marketing em alta, e oportunidades de mercado.'
+    };
+
+    const text = prompts[type];
+    if (type === 'niche' || type === 'validate') {
+        input.value = text;
+        input.focus();
+        autoResize(input);
+    } else {
+        sendToAPI('mine', text);
+    }
+}
+
+/* =========================================================
+   CALCULATOR
+   ========================================================= */
+function calculate() {
+    const cost = parseFloat(document.getElementById('calc-cost').value) || 0;
+    const shipping = parseFloat(document.getElementById('calc-shipping').value) || 0;
+    const price = parseFloat(document.getElementById('calc-price').value) || 0;
+    const platformFee = parseFloat(document.getElementById('calc-platform-fee').value) || 0;
+    const gatewayFee = parseFloat(document.getElementById('calc-gateway-fee').value) || 0;
+    const ads = parseFloat(document.getElementById('calc-ads').value) || 0;
+
+    const platformCost = price * (platformFee / 100);
+    const gatewayCost = price * (gatewayFee / 100);
+    const totalCost = cost + shipping + platformCost + gatewayCost + ads;
+    const profit = price - totalCost;
+    const margin = price > 0 ? (profit / price) * 100 : 0;
+    const roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
+
+    const fmt = (v) => 'R$ ' + v.toFixed(2).replace('.', ',');
+
+    document.getElementById('res-revenue').textContent = fmt(price);
+    document.getElementById('res-total-cost').textContent = fmt(totalCost);
+    document.getElementById('res-platform').textContent = fmt(platformCost);
+    document.getElementById('res-gateway').textContent = fmt(gatewayCost);
+    document.getElementById('res-profit').textContent = fmt(profit);
+    document.getElementById('res-margin').textContent = margin.toFixed(1) + '%';
+    document.getElementById('res-roi').textContent = roi.toFixed(1) + '%';
+
+    // Color coding
+    const profitEl = document.getElementById('res-profit');
+    const profitBg = document.getElementById('res-profit-bg');
+    if (profit > 0) {
+        profitEl.className = 'font-bold text-lg text-green-400';
+        profitBg.style.background = 'rgba(34,197,94,.08)';
+    } else if (profit < 0) {
+        profitEl.className = 'font-bold text-lg text-red-400';
+        profitBg.style.background = 'rgba(239,68,68,.08)';
+    } else {
+        profitEl.className = 'font-bold text-lg text-[var(--muted)]';
+        profitBg.style.background = 'var(--surface2)';
+    }
+
+    const marginEl = document.getElementById('res-margin');
+    const roiEl = document.getElementById('res-roi');
+    marginEl.className = 'font-bold text-lg ' + (margin >= 30 ? 'text-green-400' : margin >= 15 ? 'text-brand-400' : 'text-red-400');
+    roiEl.className = 'font-bold text-lg ' + (roi >= 50 ? 'text-green-400' : roi >= 20 ? 'text-brand-400' : 'text-red-400');
+}
+
+/* =========================================================
+   CONFIG
+   ========================================================= */
+function saveConfig() {
+    const token = document.getElementById('cfg-token').value.trim();
+    const model = document.getElementById('cfg-model').value.trim();
+    const statusEl = document.getElementById('cfg-status');
+
+    if (!token) {
+        statusEl.textContent = 'Token não pode ser vazio!';
+        statusEl.className = 'text-xs text-center text-red-400';
+        statusEl.classList.remove('hidden');
+        return;
+    }
+
+    state.apiToken = token;
+    state.model = model || 'gpt-5.3-codex';
+
+    statusEl.textContent = 'Configurações salvas com sucesso!';
+    statusEl.className = 'text-xs text-center text-green-400';
+    statusEl.classList.remove('hidden');
+    showToast('Configurações salvas!', 'fa-check-circle');
+
+    setTimeout(() => statusEl.classList.add('hidden'), 3000);
+}
+
+function toggleTokenVisibility() {
+    const input = document.getElementById('cfg-token');
+    const icon = document.getElementById('cfg-eye');
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-solid fa-eye-slash text-sm';
+    } else {
+        input.type = 'password';
+        icon.className = 'fa-solid fa-eye text-sm';
+    }
+}
+
+/* =========================================================
+   TEXTAREA AUTO-RESIZE
+   ========================================================= */
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+document.querySelectorAll('.chat-input').forEach(textarea => {
+    textarea.addEventListener('input', function() { autoResize(this); });
+});
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+function showToast(message, icon, isError) {
+    const toast = document.getElementById('toast');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastText = document.getElementById('toast-text');
+
+    toastText.textContent = message;
+    toastIcon.className = 'fa-solid ' + (icon || 'fa-check-circle') + ' ' + (isError ? 'text-red-400' : 'text-green-400');
+    toast.classList.remove('hidden');
+
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 2500);
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+document.getElementById('setup-token').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleSetup();
+});
+document.getElementById('setup-model').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleSetup();
+});
+
+</script>
+</body>
+</html>
