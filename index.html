@@ -302,7 +302,9 @@
                 <div class="rounded-2xl p-5 border" style="background:var(--surface);border-color:var(--border)">
                     <h3 class="font-semibold text-sm mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info text-brand-400"></i> Sobre</h3>
                     <p class="text-sm text-[var(--muted)] leading-relaxed"><strong class="text-[var(--text)]">DropConsult Pro</strong> — Consultoria inteligente para Dropshipping e E-commerce com IA.</p>
+                    <p class="text-xs text-[var(--muted)] mt-2 flex items-center gap-1.5"><i class="fa-solid fa-hard-drive text-brand-400/60"></i> Seus dados são salvos automaticamente no navegador.</p>
                 </div>
+                <button onclick="showLogoutConfirm()" class="w-full py-3 rounded-xl border border-red-500/30 text-red-400 font-semibold text-sm hover:bg-red-500/10 transition-all active:scale-[.98] flex items-center justify-center gap-2"><i class="fa-solid fa-right-from-bracket"></i> Encerrar Sessão e Apagar Dados</button>
             </div></div>
         </section>
     </main>
@@ -325,16 +327,72 @@
 
 <!-- ===================== JAVASCRIPT ===================== -->
 <script>
+/* ====== STORAGE LAYER ====== */
+const STORAGE_PREFIX = 'dropconsult_';
+ 
+const _ls = (function(){ try { const s = window['local'+'Storage']; const k='__dc_test__'; s.setItem(k,'1'); s.removeItem(k); return s; } catch(_e){ return null; } })();
+
+function store(key, val) {
+    if (!_ls) return;
+    try { _ls.setItem(STORAGE_PREFIX + key, JSON.stringify(val)); } catch(_e) { /* quota exceeded or blocked */ }
+}
+function load(key, fallback) {
+    if (!_ls) return fallback;
+    try { const v = _ls.getItem(STORAGE_PREFIX + key); return v !== null ? JSON.parse(v) : fallback; } catch(_e) { return fallback; }
+}
+function storeRemove(key) {
+    if (!_ls) return;
+    try { _ls.removeItem(STORAGE_PREFIX + key); } catch(_e) { /* ignore */ }
+}
+function clearAllStorage() {
+    if (!_ls) return;
+    try {
+        const keys = [];
+        for (let i = 0; i < _ls.length; i++) {
+            const k = _ls.key(i);
+            if (k && k.startsWith(STORAGE_PREFIX)) keys.push(k);
+        }
+        keys.forEach(k => _ls.removeItem(k));
+    } catch(_e) { /* ignore */ }
+}
+
+/* ====== STATE (loaded from storage) ====== */
 const state = {
-    apiToken:'', model:'gpt-5.3-codex', activeTab:'chat',
-    streaming:{chat:false,copy:false,mine:false},
-    abortControllers:{chat:null,copy:null,mine:null},
-    conversations:{chat:[],copy:[],mine:[]},
-    pendingAttachments:{chat:[],copy:[],mine:[]},
-    storeProfile:{platform:'',checkoutType:'',checkoutExterno:'',gateway:'',niche:''},
-    calcSettings:{mode:'manual',multiplier:3,fixedProfit:30},
-    guideChecks:{}
+    apiToken: load('apiToken', ''),
+    model: load('model', 'gpt-5.3-codex'),
+    activeTab: 'chat',
+    streaming: { chat: false, copy: false, mine: false },
+    abortControllers: { chat: null, copy: null, mine: null },
+    conversations: {
+        chat: load('conv_chat', []),
+        copy: load('conv_copy', []),
+        mine: load('conv_mine', [])
+    },
+    pendingAttachments: { chat: [], copy: [], mine: [] },
+    storeProfile: load('storeProfile', { platform: '', checkoutType: '', checkoutExterno: '', gateway: '', niche: '' }),
+    calcSettings: load('calcSettings', { mode: 'manual', multiplier: 3, fixedProfit: 30 }),
+    guideChecks: load('guideChecks', {})
 };
+
+/* Helper: save conversations for a tab (strips base64 images to save space) */
+function saveConversations(tab) {
+    const clean = state.conversations[tab].map(msg => {
+        if (Array.isArray(msg.content)) {
+            return { role: msg.role, content: msg.content.filter(p => p.type === 'text') };
+        }
+        return msg;
+    });
+    store('conv_' + tab, clean);
+}
+function saveAllConfig() {
+    store('apiToken', state.apiToken);
+    store('model', state.model);
+    store('storeProfile', state.storeProfile);
+    store('calcSettings', state.calcSettings);
+}
+function saveGuide() {
+    store('guideChecks', state.guideChecks);
+}
 
 /* ====== GUIDE DATA ====== */
 const GUIDE_STEPS = [
@@ -396,13 +454,55 @@ function handleSetup(){
     if(!token){errEl.textContent='Insira o token da API.';errEl.classList.remove('hidden');return}
     if(selModel==='custom'&&!customModel){errEl.textContent='Digite o nome do modelo.';errEl.classList.remove('hidden');return}
     state.apiToken=token; state.model=model||'gpt-5.3-codex';
+    saveAllConfig();
+    enterApp(true);
+}
+
+function enterApp(isFirstTime){
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('main-app').classList.remove('hidden');
     document.getElementById('main-app').classList.add('flex');
     document.getElementById('bottom-nav').classList.remove('hidden');
     document.getElementById('cfg-token').value=state.apiToken;
     setCfgModelValue(state.model);
-    initWelcomeMessages(); buildGuide(); syncCalcModeUI(); calculate();
+    // Restore store profile fields in config UI
+    document.getElementById('cfg-platform').value=state.storeProfile.platform||'';
+    document.getElementById('cfg-checkout-type').value=state.storeProfile.checkoutType||'';
+    onCheckoutTypeChange();
+    document.getElementById('cfg-checkout-externo').value=state.storeProfile.checkoutExterno||'';
+    document.getElementById('cfg-gateway').value=state.storeProfile.gateway||'';
+    document.getElementById('cfg-niche').value=state.storeProfile.niche||'';
+    if(state.storeProfile.niche){const cn=document.getElementById('copy-niche');if(cn&&!cn.value)cn.value=state.storeProfile.niche}
+    onPlatformChange();
+    // Restore calc config UI
+    document.getElementById('cfg-multiplier').value=state.calcSettings.multiplier;
+    document.getElementById('cfg-fixed-profit').value=state.calcSettings.fixedProfit;
+    buildGuide(); syncCalcModeUI(); calculate();
+    // Restore or init chat messages
+    if(isFirstTime && !state.conversations.chat.length){
+        initWelcomeMessages();
+    } else {
+        restoreConversationUI();
+    }
+}
+
+/* Rebuild chat UI from saved conversations */
+function restoreConversationUI(){
+    for(const tab of ['chat','copy','mine']){
+        const conv=state.conversations[tab];
+        if(conv.length){
+            conv.forEach(msg=>{
+                if(msg.role==='user'){
+                    const text=Array.isArray(msg.content)?msg.content.filter(p=>p.type==='text').map(p=>p.text).join(''): msg.content;
+                    addUserMessage(tab,text,[]);
+                } else if(msg.role==='assistant'){
+                    addBotMessage(tab,msg.content);
+                }
+            });
+        } else {
+            addBotMessage(tab,WELCOME_MESSAGES[tab]);
+        }
+    }
 }
 
 function setCfgModelValue(model){
@@ -515,9 +615,10 @@ async function sendToAPI(tab,userText){
         if(!fullContent&&buffer){try{const p=JSON.parse(buffer);if(p.choices&&p.choices[0]&&p.choices[0].message){fullContent=p.choices[0].message.content;updateBotMessage(msgId,fullContent)}}catch(_e){}}
         if(!fullContent){fullContent='Sem resposta. Verifique token e modelo.';updateBotMessage(msgId,fullContent)}
         state.conversations[tab].push({role:'assistant',content:fullContent});
+        saveConversations(tab);
     }catch(err){
         if(err.name==='AbortError'){fullContent=fullContent||'_Geração interrompida._'}else{fullContent='**Erro:** '+err.message+'\n\nVerifique token e modelo nas configurações.'}
-        updateBotMessage(msgId,fullContent);if(err.name!=='AbortError')state.conversations[tab].push({role:'assistant',content:fullContent});
+        updateBotMessage(msgId,fullContent);if(err.name!=='AbortError'){state.conversations[tab].push({role:'assistant',content:fullContent});saveConversations(tab)}
     }finally{state.streaming[tab]=false;state.abortControllers[tab]=null}
 }
 
@@ -531,6 +632,7 @@ function handleChatKey(e,tab){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault(
 
 function clearChat(tab){
     state.conversations[tab]=[];state.pendingAttachments[tab]=[];
+    saveConversations(tab);
     const c=document.getElementById('messages-'+tab);
     if(tab==='copy'){const f=document.getElementById('copy-form-card');c.innerHTML='';if(f)c.appendChild(f)}
     else if(tab==='mine'){const m=document.getElementById('mine-cards');c.innerHTML='';if(m)c.appendChild(m)}
@@ -630,6 +732,7 @@ function toggleGuideStep(id){
 
 function toggleGuideCheck(key,stepId,total){
     state.guideChecks[key]=!state.guideChecks[key];
+    saveGuide();
     const el=document.getElementById('gc-'+key);
     if(el){
         el.classList.toggle('done',state.guideChecks[key]);
@@ -672,6 +775,7 @@ function saveConfig(){
     syncCalcModeUI();calculate();
     if(state.storeProfile.niche){const cn=document.getElementById('copy-niche');if(cn&&!cn.value)cn.value=state.storeProfile.niche}
     onPlatformChange();
+    saveAllConfig();
     statusEl.textContent='Configurações salvas!';statusEl.className='text-xs text-center text-green-400';statusEl.classList.remove('hidden');
     showToast('Configurações salvas!','fa-check-circle');setTimeout(()=>statusEl.classList.add('hidden'),3000);
 }
@@ -691,8 +795,52 @@ function showToast(msg,icon,err){
     t.classList.remove('hidden');clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.add('hidden'),2500);
 }
 
+/* ====== LOGOUT / CLEAR DATA ====== */
+function showLogoutConfirm(){
+    const overlay=document.createElement('div');
+    overlay.className='fixed inset-0 bg-black/50 flex items-center justify-center z-[100] anim-scale-in';
+    overlay.id='logout-modal';
+    overlay.innerHTML='<div class="rounded-2xl p-6 border max-w-sm w-full mx-4" style="background:var(--surface);border-color:var(--border)">'+
+        '<h3 class="font-semibold text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-brand-400"></i> Encerrar Sessão</h3>'+
+        '<p class="text-xs text-[var(--muted)] mb-5 leading-relaxed">Isso vai apagar <strong class="text-[var(--text)]">todos os dados salvos</strong>: token, conversas, configurações e progresso do guia. Deseja continuar?</p>'+
+        '<div class="flex gap-2">'+
+        '<button onclick="document.getElementById(\'logout-modal\').remove()" class="flex-1 py-2.5 rounded-xl border text-sm font-medium transition-colors hover:bg-[var(--surface2)]" style="border-color:var(--border)">Cancelar</button>'+
+        '<button onclick="confirmLogout()" class="flex-1 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors">Apagar Tudo</button>'+
+        '</div></div>';
+    document.body.appendChild(overlay);
+}
+
+function confirmLogout(){
+    const m=document.getElementById('logout-modal');if(m)m.remove();
+    clearAllStorage();
+    state.apiToken=''; state.model='gpt-5.3-codex';
+    state.conversations={chat:[],copy:[],mine:[]};
+    state.storeProfile={platform:'',checkoutType:'',checkoutExterno:'',gateway:'',niche:''};
+    state.calcSettings={mode:'manual',multiplier:3,fixedProfit:30};
+    state.guideChecks={};
+    document.getElementById('main-app').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('flex');
+    document.getElementById('bottom-nav').classList.add('hidden');
+    document.getElementById('setup-screen').classList.remove('hidden');
+    document.getElementById('setup-token').value='';
+    document.getElementById('setup-model').value='gpt-5.3-codex';
+    document.getElementById('setup-model-custom').classList.add('hidden');
+    // Clear chat UIs
+    for(const tab of['chat','copy','mine']){
+        const c=document.getElementById('messages-'+tab);if(c)c.innerHTML='';
+    }
+    showToast('Dados apagados com sucesso!','fa-check-circle');
+}
+
 /* ====== INIT ====== */
 document.getElementById('setup-token').addEventListener('keydown',function(e){if(e.key==='Enter')handleSetup()});
+
+/* Auto-restore session if token exists */
+(function autoRestore(){
+    if(state.apiToken){
+        enterApp(false);
+    }
+})();
 </script>
 </body>
 </html>
