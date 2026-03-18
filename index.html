@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DropConsult Pro</title>
-    <!-- APP_SETTINGS_START
+     <!-- APP_SETTINGS_START
     {"costLabel":"[usd_milli_cents=100000]+ points","rateCard":"| Plano | Pontos | Custo |\n|-------|--------|-------|\n| Gratuito | 10.000 | Grátis |\n| Básico | 50.000 | [usd_milli_cents=100000] points |\n| Pro | 200.000 | [usd_milli_cents=400000] points |\n| Premium | 500.000 | [usd_milli_cents=1000000] points |"}
     APP_SETTINGS_END -->
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -149,7 +149,7 @@
                 <span id="sidebar-points-count" class="text-[11px] font-bold text-brand-400">10.000</span>
             </div>
             <div class="w-full h-1.5 rounded-full" style="background:var(--surface2)"><div id="sidebar-points-bar" class="h-full rounded-full bg-brand-400 transition-all duration-500" style="width:100%"></div></div>
-            <button onclick="showPlansModal()" class="mt-2 w-full text-[10px] text-[var(--muted)] hover:text-brand-400 transition-colors font-medium flex items-center justify-center gap-1"><i class="fa-solid fa-bolt"></i> Gerenciar Plano</button>
+            <div class="flex items-center justify-between mt-1.5"><span id="sidebar-model-cost" class="text-[9px] text-[var(--muted)]"></span><button onclick="showPlansModal()" class="text-[10px] text-[var(--muted)] hover:text-brand-400 transition-colors font-medium flex items-center gap-1"><i class="fa-solid fa-bolt"></i> Plano</button></div>
         </div>
         <nav class="flex-1 py-3 flex flex-col gap-0.5 px-2" id="sidebar-nav">
             <button class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-left transition-all" data-tab="chat"><i class="fa-solid fa-comments w-5 text-center"></i> Consultor IA</button>
@@ -412,13 +412,43 @@ function clearAllStorage() {
 
 /* ====== PLANS CONSTANTS ====== */
 const PLANS = [
-    { id:'free',    name:'Gratuito', icon:'fa-gift',  points:10000,   costMilliCents:0,       badge:'plan-badge-free',    desc:'~50 msgs/mês',  color:'#6b7280' },
-    { id:'basic',   name:'Básico',   icon:'fa-star',  points:50000,   costMilliCents:100000,  badge:'plan-badge-basic',   desc:'~250 msgs/mês', color:'#3b82f6' },
-    { id:'pro',     name:'Pro',      icon:'fa-crown', points:200000,  costMilliCents:400000,  badge:'plan-badge-pro',     desc:'~1.000 msgs/mês',color:'#8b5cf6' },
-    { id:'premium', name:'Premium',  icon:'fa-gem',   points:500000,  costMilliCents:1000000, badge:'plan-badge-premium', desc:'~2.500 msgs/mês',color:'#fbbf24' }
+    { id:'free',    name:'Gratuito', icon:'fa-gift',  points:10000,   costMilliCents:0,       badge:'plan-badge-free',    desc:'10~50 msgs/mês', color:'#6b7280' },
+    { id:'basic',   name:'Básico',   icon:'fa-star',  points:50000,   costMilliCents:100000,  badge:'plan-badge-basic',   desc:'50~250 msgs/mês',color:'#3b82f6' },
+    { id:'pro',     name:'Pro',      icon:'fa-crown', points:200000,  costMilliCents:400000,  badge:'plan-badge-pro',     desc:'200~1k msgs/mês',color:'#8b5cf6' },
+    { id:'premium', name:'Premium',  icon:'fa-gem',   points:500000,  costMilliCents:1000000, badge:'plan-badge-premium', desc:'500~2.5k msgs/mês',color:'#fbbf24' }
 ];
-const POINTS_PER_MESSAGE = 200;
 const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+
+/* ====== MODEL COST TABLE ====== */
+const MODEL_COSTS = {
+    'gpt-5.3-codex':     { points: 1000, tier: 'top',    label: 'Premium' },
+    'Claude-3-Opus':     { points: 1000, tier: 'top',    label: 'Premium' },
+    'GPT-4o':            { points: 800,  tier: 'high',   label: 'Forte' },
+    'Claude-3.5-Sonnet': { points: 800,  tier: 'high',   label: 'Forte' },
+    'Gemini-1.5-Pro':    { points: 800,  tier: 'high',   label: 'Forte' },
+    'Llama-3.1-405B':    { points: 500,  tier: 'medium', label: 'Médio' },
+    'GPT-4o-mini':       { points: 200,  tier: 'low',    label: 'Econômico' },
+    'Gemini-1.5-Flash':  { points: 300,  tier: 'low',    label: 'Econômico' }
+};
+const DEFAULT_MODEL_COST = { points: 500, tier: 'medium', label: 'Médio' };
+
+function getModelCost(model) {
+    if (!model) return DEFAULT_MODEL_COST;
+    // Exact match first
+    if (MODEL_COSTS[model]) return MODEL_COSTS[model];
+    // Case-insensitive / partial match
+    const lower = model.toLowerCase();
+    for (const [key, val] of Object.entries(MODEL_COSTS)) {
+        if (key.toLowerCase() === lower) return val;
+    }
+    // Keyword heuristic for custom models
+    if (/opus|o1-pro|o3|gpt-?5/i.test(model))       return { points: 1000, tier: 'top',    label: 'Premium' };
+    if (/gpt-?4o(?!-mini)|claude.*sonnet|pro/i.test(model)) return { points: 800,  tier: 'high',   label: 'Forte' };
+    if (/mini|flash|lite|haiku|small/i.test(model))  return { points: 200,  tier: 'low',    label: 'Econômico' };
+    return DEFAULT_MODEL_COST;
+}
+
+function currentModelPoints() { return getModelCost(state.model).points; }
 
 function getPlan(id) { return PLANS.find(p => p.id === id) || PLANS[0]; }
 
@@ -487,6 +517,9 @@ function updatePointsUI() {
     const pct = total > 0 ? Math.max(0, Math.min(100, (remaining / total) * 100)) : 0;
     const barColor = pct > 30 ? 'bg-brand-400' : pct > 10 ? 'bg-yellow-500' : 'bg-red-500';
 
+    const mCost = getModelCost(state.model);
+    const costColor = mCost.tier==='top'?'#ef4444':mCost.tier==='high'?'#f59e0b':mCost.tier==='low'?'#22c55e':'#3b82f6';
+
     // Sidebar
     const sb = document.getElementById('sidebar-plan-badge');
     if (sb) { sb.textContent = plan.name; sb.className = plan.badge + ' text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide'; }
@@ -494,6 +527,8 @@ function updatePointsUI() {
     if (sc) { sc.textContent = fmtPointsFull(remaining); sc.classList.add('points-pulse'); setTimeout(() => sc.classList.remove('points-pulse'), 600); }
     const sbar = document.getElementById('sidebar-points-bar');
     if (sbar) { sbar.style.width = pct + '%'; sbar.className = 'h-full rounded-full transition-all duration-500 ' + barColor; }
+    const smc = document.getElementById('sidebar-model-cost');
+    if (smc) smc.innerHTML = '<i class="fa-solid fa-circle" style="font-size:5px;color:' + costColor + ';vertical-align:middle"></i> ' + fmtPointsFull(mCost.points) + ' pts/msg';
 
     // Mobile
     const mb = document.getElementById('mobile-plan-badge');
@@ -525,7 +560,7 @@ function deductPoints(amount) {
     savePlan();
     updatePointsUI();
 }
-function hasEnoughPoints() { return state.plan.pointsRemaining >= POINTS_PER_MESSAGE; }
+function hasEnoughPoints() { return state.plan.pointsRemaining >= currentModelPoints(); }
 
 /* ====== PLANS MODAL ====== */
 function showPlansModal() {
@@ -556,8 +591,16 @@ function showPlansModal() {
             '</div>';
     }).join('');
 
+    const mc = getModelCost(state.model);
+    const costTableHTML = '<div class="mt-1 flex flex-wrap gap-1.5">' +
+        '<span class="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style="background:#ef444420;color:#ef4444">Premium: 1.000 pts</span>' +
+        '<span class="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style="background:#f59e0b20;color:#f59e0b">Forte: 800 pts</span>' +
+        '<span class="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style="background:#3b82f620;color:#3b82f6">Médio: 500 pts</span>' +
+        '<span class="text-[9px] px-1.5 py-0.5 rounded-full font-semibold" style="background:#22c55e20;color:#22c55e">Econômico: 200~300 pts</span>' +
+        '</div>';
+
     overlay.innerHTML = '<div class="w-full max-w-lg anim-scale-in"><div class="rounded-2xl border overflow-hidden" style="background:var(--bg);border-color:var(--border)">' +
-        '<div class="px-5 py-4 border-b flex items-center justify-between" style="border-color:var(--border)"><div><h3 class="font-bold text-base">Planos e Pontos</h3><p class="text-xs text-[var(--muted)]">Cada mensagem consome ~' + POINTS_PER_MESSAGE + ' pontos</p></div><button onclick="document.getElementById(\'plans-modal\').remove()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted)] hover:text-[var(--text)] transition-colors"><i class="fa-solid fa-xmark"></i></button></div>' +
+        '<div class="px-5 py-4 border-b" style="border-color:var(--border)"><div class="flex items-center justify-between mb-1"><h3 class="font-bold text-base">Planos e Pontos</h3><button onclick="document.getElementById(\'plans-modal\').remove()" class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--muted)] hover:text-[var(--text)] transition-colors"><i class="fa-solid fa-xmark"></i></button></div><p class="text-xs text-[var(--muted)]">Modelo atual: <strong class="text-[var(--text)]">' + escapeHtml(state.model) + '</strong> → <strong style="color:' + (mc.tier==='top'?'#ef4444':mc.tier==='high'?'#f59e0b':mc.tier==='low'?'#22c55e':'#3b82f6') + '">' + fmtPointsFull(mc.points) + ' pts/msg (' + mc.label + ')</strong></p>' + costTableHTML + '</div>' +
         '<div class="p-4 grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto">' + cardsHTML + '</div>' +
         '<div class="px-5 py-3 border-t text-center" style="border-color:var(--border)"><p class="text-[10px] text-[var(--muted)]"><i class="fa-solid fa-shield-halved mr-1"></i>Cobrado via Poe Compute Points. Renovação mensal automática.</p></div>' +
         '</div></div>';
@@ -624,8 +667,8 @@ function showOutOfPointsModal() {
 
     overlay.innerHTML = '<div class="w-full max-w-sm anim-scale-in"><div class="rounded-2xl p-6 border" style="background:var(--surface);border-color:var(--border)">' +
         '<div class="text-center mb-4"><div class="w-14 h-14 rounded-2xl bg-red-500/15 flex items-center justify-center mx-auto mb-3"><i class="fa-solid fa-coins text-red-400 text-2xl"></i></div>' +
-        '<h3 class="font-bold text-base mb-1">Pontos Esgotados!</h3>' +
-        '<p class="text-xs text-[var(--muted)] leading-relaxed">Seus ' + fmtPointsFull(currentPlan.points) + ' pontos do plano <strong class="text-[var(--text)]">' + currentPlan.name + '</strong> foram utilizados.</p>' +
+        '<h3 class="font-bold text-base mb-1">Pontos Insuficientes!</h3>' +
+        '<p class="text-xs text-[var(--muted)] leading-relaxed">O modelo <strong class="text-[var(--text)]">' + escapeHtml(state.model) + '</strong> consome <strong class="text-brand-400">' + fmtPointsFull(currentModelPoints()) + ' pts/msg</strong> e você tem apenas <strong class="text-red-400">' + fmtPointsFull(Math.max(0,state.plan.pointsRemaining)) + '</strong> restantes no plano <strong class="text-[var(--text)]">' + currentPlan.name + '</strong>.</p>' +
         '<p class="text-[10px] text-[var(--muted)] mt-1">Renovação em ' + renewDate.toLocaleDateString('pt-BR') + '</p></div>' +
         '<div class="flex gap-2">' +
         '<button onclick="document.getElementById(\'nopoints-modal\').remove()" class="' + (upgradeHTML ? 'flex-none px-4' : 'flex-1') + ' py-2.5 rounded-xl border text-sm font-medium transition-colors hover:bg-[var(--surface2)]" style="border-color:var(--border)">Fechar</button>' +
@@ -822,9 +865,10 @@ function removeAttach(tab,idx){
 async function sendToAPI(tab,userText){
     if(state.streaming[tab])return;
     // Check points
+    const msgCost = currentModelPoints();
     if(!hasEnoughPoints()){ showOutOfPointsModal(); return; }
     state.streaming[tab]=true;
-    deductPoints(POINTS_PER_MESSAGE);
+    deductPoints(msgCost);
     const attachments=state.pendingAttachments[tab].slice();
     state.pendingAttachments[tab]=[];renderAttachPreview(tab);
 
