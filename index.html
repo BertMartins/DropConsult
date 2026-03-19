@@ -24,7 +24,8 @@
         <!-- Apple Touch Icon -->
         <link rel="apple-touch-icon" sizes="180x180"
             href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2334d399'/%3E%3Cstop offset='100%25' stop-color='%2316a34a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='%230a0f0c'/%3E%3Ctext x='90' y='55' font-size='36' text-anchor='middle' fill='%2334d399'%3E%7B%20%7D%3C/text%3E%3Cpath d='M90 70 C68 70 60 88 60 100 C60 126 82 134 90 154 C98 134 120 126 120 100 C120 88 112 70 90 70 Z' fill='url(%23g)'/%3E%3Crect x='86' y='140' width='8' height='18' rx='3' fill='%238b5a2b'/%3E%3C/svg%3E">
-    
+   <!DOCTYPE html>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
@@ -93,6 +94,8 @@
         .plan-badge-basic{background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff}
         .plan-badge-pro{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff}
         .plan-badge-premium{background:linear-gradient(135deg,var(--accent),#d97706);color:#1a1a1a}
+        .plan-badge-admin{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+        .admin-glow{box-shadow:0 0 12px rgba(239,68,68,.25)}
     </style>
 </head>
 <body class="font-sans antialiased overflow-hidden h-screen">
@@ -101,15 +104,34 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{e.matches?document.documentElement.classList.add('dark'):document.documentElement.classList.remove('dark')});
 </script>
 
+<!-- ===================== LOGIN SCREEN ===================== -->
+<div id="login-screen" class="setup-bg fixed inset-0 z-[60] flex items-center justify-center p-4">
+    <div class="relative z-10 w-full max-w-sm anim-scale-in">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-3 mb-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-lg shadow-brand-400/20"><i class="fa-solid fa-rocket text-ink-950 text-2xl"></i></div>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight mb-1"><span class="text-brand-400">Drop</span><span>Consult</span><span class="text-xs font-semibold bg-brand-400 text-ink-950 px-2 py-0.5 rounded-full ml-1.5 align-top">PRO</span></h1>
+            <p class="text-[var(--muted)] text-sm leading-relaxed">Faça login para acessar sua consultoria.</p>
+        </div>
+        <div class="rounded-2xl p-6 border" style="background:var(--surface);border-color:var(--border)">
+            <label class="block text-sm font-medium mb-2 text-[var(--muted)]"><i class="fa-solid fa-user mr-1 text-brand-400"></i> Usuário</label>
+            <input id="login-username" type="text" placeholder="Digite seu usuário..." class="form-input w-full rounded-xl px-4 py-3 text-base mb-4" autocomplete="username" autocapitalize="off" spellcheck="false">
+            <button onclick="handleLogin()" class="w-full py-3 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 text-ink-950 font-semibold text-base hover:from-brand-300 hover:to-brand-500 transition-all active:scale-[.98] flex items-center justify-center gap-2"><i class="fa-solid fa-right-to-bracket"></i> Entrar</button>
+            <p id="login-error" class="text-red-400 text-xs mt-3 hidden text-center"></p>
+        </div>
+    </div>
+</div>
+
 <!-- ===================== SETUP SCREEN ===================== -->
-<div id="setup-screen" class="setup-bg fixed inset-0 z-50 flex items-center justify-center p-4">
+<div id="setup-screen" class="setup-bg fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div class="relative z-10 w-full max-w-md anim-scale-in">
         <div class="text-center mb-8">
             <div class="inline-flex items-center gap-3 mb-4">
                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-lg"><i class="fa-solid fa-rocket text-ink-950 text-xl"></i></div>
                 <h1 class="text-3xl font-bold tracking-tight"><span class="text-brand-400">Drop</span><span>Consult</span><span class="text-xs font-semibold bg-brand-400 text-ink-950 px-2 py-0.5 rounded-full ml-1 align-top">PRO</span></h1>
             </div>
-            <p class="text-[var(--muted)] text-sm leading-relaxed max-w-xs mx-auto">Seu consultor inteligente para Dropshipping, E-commerce e Marketing Digital.</p>
+            <p id="setup-greeting" class="text-[var(--muted)] text-sm leading-relaxed max-w-xs mx-auto">Seu consultor inteligente para Dropshipping, E-commerce e Marketing Digital.</p>
         </div>
         <div class="rounded-2xl p-6 border" style="background:var(--surface);border-color:var(--border)">
             <label class="block text-sm font-medium mb-2 text-[var(--muted)]"><i class="fa-solid fa-key mr-1 text-brand-400"></i> Token da API Poe</label>
@@ -141,7 +163,7 @@
     <aside class="hidden lg:flex flex-col w-60 border-r shrink-0" style="background:var(--surface);border-color:var(--border)">
         <div class="p-5 flex items-center gap-2.5 border-b" style="border-color:var(--border)">
             <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center"><i class="fa-solid fa-rocket text-ink-950 text-sm"></i></div>
-            <span class="font-bold text-lg tracking-tight"><span class="text-brand-400">Drop</span>Consult</span>
+            <div class="min-w-0"><span class="font-bold text-lg tracking-tight block leading-tight"><span class="text-brand-400">Drop</span>Consult</span><span id="sidebar-username" class="text-[10px] text-[var(--muted)] truncate block"></span></div>
         </div>
         <div id="sidebar-points" class="px-4 py-3 border-b" style="border-color:var(--border)">
             <div class="flex items-center justify-between mb-1">
@@ -452,8 +474,14 @@ function currentModelPoints() { return getModelCost(state.model).points; }
 
 function getPlan(id) { return PLANS.find(p => p.id === id) || PLANS[0]; }
 
+/* ====== ADMIN LIST ====== */
+const ADMIN_USERS = ['heberte.anjos'];
+
+function isAdmin() { return ADMIN_USERS.includes((state.username || '').toLowerCase().trim()); }
+
 /* ====== STATE (loaded from storage) ====== */
 const state = {
+    username: load('username', ''),
     apiToken: load('apiToken', ''),
     model: load('model', 'gpt-5.3-codex'),
     activeTab: 'chat',
@@ -494,6 +522,7 @@ function saveConversations(tab) {
     store('conv_' + tab, clean);
 }
 function saveAllConfig() {
+    store('username', state.username);
     store('apiToken', state.apiToken);
     store('model', state.model);
     store('storeProfile', state.storeProfile);
@@ -511,56 +540,66 @@ function fmtPoints(n) {
 function fmtPointsFull(n) { return n.toLocaleString('pt-BR'); }
 
 function updatePointsUI() {
+    const admin = isAdmin();
     const plan = getPlan(state.plan.id);
-    const remaining = Math.max(0, state.plan.pointsRemaining);
-    const total = state.plan.pointsTotal;
-    const pct = total > 0 ? Math.max(0, Math.min(100, (remaining / total) * 100)) : 0;
-    const barColor = pct > 30 ? 'bg-brand-400' : pct > 10 ? 'bg-yellow-500' : 'bg-red-500';
-
+    const remaining = admin ? Infinity : Math.max(0, state.plan.pointsRemaining);
+    const total = admin ? 1 : state.plan.pointsTotal;
+    const pct = admin ? 100 : (total > 0 ? Math.max(0, Math.min(100, (remaining / total) * 100)) : 0);
+    const barColor = admin ? 'bg-red-500' : (pct > 30 ? 'bg-brand-400' : pct > 10 ? 'bg-yellow-500' : 'bg-red-500');
     const mCost = getModelCost(state.model);
     const costColor = mCost.tier==='top'?'#ef4444':mCost.tier==='high'?'#f59e0b':mCost.tier==='low'?'#22c55e':'#3b82f6';
 
+    const badgeName = admin ? 'ADMIN' : plan.name;
+    const badgeClass = admin ? 'plan-badge-admin' : plan.badge;
+    const pointsText = admin ? '∞' : fmtPointsFull(remaining);
+    const pointsShort = admin ? '∞' : fmtPoints(remaining);
+
+    // Sidebar username
+    const su = document.getElementById('sidebar-username');
+    if (su) su.innerHTML = admin ? '<i class="fa-solid fa-shield-halved" style="color:#ef4444"></i> ' + escapeHtml(state.username) : '<i class="fa-solid fa-user"></i> ' + escapeHtml(state.username);
+
     // Sidebar
     const sb = document.getElementById('sidebar-plan-badge');
-    if (sb) { sb.textContent = plan.name; sb.className = plan.badge + ' text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide'; }
+    if (sb) { sb.textContent = badgeName; sb.className = badgeClass + ' text-[8px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide'; }
     const sc = document.getElementById('sidebar-points-count');
-    if (sc) { sc.textContent = fmtPointsFull(remaining); sc.classList.add('points-pulse'); setTimeout(() => sc.classList.remove('points-pulse'), 600); }
+    if (sc) { sc.textContent = pointsText; if (!admin) { sc.classList.add('points-pulse'); setTimeout(() => sc.classList.remove('points-pulse'), 600); } }
     const sbar = document.getElementById('sidebar-points-bar');
     if (sbar) { sbar.style.width = pct + '%'; sbar.className = 'h-full rounded-full transition-all duration-500 ' + barColor; }
     const smc = document.getElementById('sidebar-model-cost');
-    if (smc) smc.innerHTML = '<i class="fa-solid fa-circle" style="font-size:5px;color:' + costColor + ';vertical-align:middle"></i> ' + fmtPointsFull(mCost.points) + ' pts/msg';
+    if (smc) smc.innerHTML = admin ? '<i class="fa-solid fa-infinity" style="font-size:9px;color:#ef4444;vertical-align:middle"></i> <span style="color:#ef4444">Ilimitado</span>' : '<i class="fa-solid fa-circle" style="font-size:5px;color:' + costColor + ';vertical-align:middle"></i> ' + fmtPointsFull(mCost.points) + ' pts/msg';
 
     // Mobile
     const mb = document.getElementById('mobile-plan-badge');
-    if (mb) { mb.textContent = plan.name; mb.className = plan.badge + ' text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide'; }
+    if (mb) { mb.textContent = badgeName; mb.className = badgeClass + ' text-[7px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide'; }
     const mc = document.getElementById('mobile-points-count');
-    if (mc) mc.textContent = fmtPoints(remaining);
+    if (mc) mc.textContent = pointsShort;
     const mbar = document.getElementById('mobile-points-bar');
     if (mbar) { mbar.style.width = pct + '%'; mbar.className = 'h-full rounded-full transition-all duration-500 ' + barColor; }
 
     // Config
     const cb = document.getElementById('cfg-plan-badge');
-    if (cb) { cb.textContent = plan.name; cb.className = plan.badge + ' text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide'; }
+    if (cb) { cb.textContent = badgeName; cb.className = badgeClass + ' text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide'; }
     const cn = document.getElementById('cfg-plan-name');
-    if (cn) cn.textContent = 'Plano ' + plan.name;
+    if (cn) cn.textContent = admin ? 'Administrador' : 'Plano ' + plan.name;
     const cd = document.getElementById('cfg-points-display');
-    if (cd) cd.textContent = fmtPointsFull(remaining) + ' / ' + fmtPointsFull(total);
+    if (cd) cd.textContent = admin ? '∞ Ilimitado' : fmtPointsFull(remaining) + ' / ' + fmtPointsFull(total);
     const cbar = document.getElementById('cfg-points-bar');
     if (cbar) { cbar.style.width = pct + '%'; cbar.className = 'h-full rounded-full transition-all duration-500 ' + barColor; }
     const rd = document.getElementById('cfg-renew-date');
     if (rd) {
-        const renewDate = new Date((state.plan.activatedAt || Date.now()) + MONTH_MS);
-        rd.textContent = 'Renovação: ' + renewDate.toLocaleDateString('pt-BR');
+        if (admin) rd.textContent = 'Acesso ilimitado — sem renovação necessária';
+        else { const renewDate = new Date((state.plan.activatedAt || Date.now()) + MONTH_MS); rd.textContent = 'Renovação: ' + renewDate.toLocaleDateString('pt-BR'); }
     }
 }
 
 /* ====== DEDUCT POINTS ====== */
 function deductPoints(amount) {
+    if (isAdmin()) return; // Admin never loses points
     state.plan.pointsRemaining = Math.max(0, state.plan.pointsRemaining - amount);
     savePlan();
     updatePointsUI();
 }
-function hasEnoughPoints() { return state.plan.pointsRemaining >= currentModelPoints(); }
+function hasEnoughPoints() { return isAdmin() || state.plan.pointsRemaining >= currentModelPoints(); }
 
 /* ====== PLANS MODAL ====== */
 function showPlansModal() {
@@ -723,6 +762,25 @@ const WELCOME_MESSAGES = {
 
 marked.setOptions({breaks:true,gfm:true});
 
+/* ====== LOGIN ====== */
+function handleLogin(){
+    const username = document.getElementById('login-username').value.trim();
+    const errEl = document.getElementById('login-error');
+    if(!username){ errEl.textContent='Digite seu nome de usuário.'; errEl.classList.remove('hidden'); return; }
+    state.username = username;
+    store('username', state.username);
+    document.getElementById('login-screen').classList.add('hidden');
+    // If already has token, go straight to app
+    if(state.apiToken){
+        document.getElementById('setup-screen').classList.remove('hidden');
+        enterApp(false);
+    } else {
+        document.getElementById('setup-screen').classList.remove('hidden');
+        const greet = document.getElementById('setup-greeting');
+        if(greet) greet.innerHTML = 'Olá, <strong class="text-brand-400">' + escapeHtml(username) + '</strong>! Configure sua API para começar.' + (isAdmin() ? ' <span class="plan-badge-admin text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Admin</span>' : '');
+    }
+}
+
 /* ====== SETUP ====== */
 function onSetupModelChange(){
     document.getElementById('setup-model-custom').classList.toggle('hidden',document.getElementById('setup-model').value!=='custom');
@@ -746,6 +804,7 @@ function handleSetup(){
 
 function enterApp(isFirstTime){
     checkMonthlyReset();
+    document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('main-app').classList.remove('hidden');
     document.getElementById('main-app').classList.add('flex');
@@ -1106,7 +1165,7 @@ function showLogoutConfirm(){
 function confirmLogout(){
     const m=document.getElementById('logout-modal');if(m)m.remove();
     clearAllStorage();
-    state.apiToken=''; state.model='gpt-5.3-codex';
+    state.username=''; state.apiToken=''; state.model='gpt-5.3-codex';
     state.conversations={chat:[],copy:[],mine:[]};
     state.storeProfile={platform:'',checkoutType:'',checkoutExterno:'',gateway:'',niche:''};
     state.calcSettings={mode:'manual',multiplier:3,fixedProfit:30};
@@ -1115,7 +1174,9 @@ function confirmLogout(){
     document.getElementById('main-app').classList.add('hidden');
     document.getElementById('main-app').classList.remove('flex');
     document.getElementById('bottom-nav').classList.add('hidden');
-    document.getElementById('setup-screen').classList.remove('hidden');
+    document.getElementById('setup-screen').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-username').value='';
     document.getElementById('setup-token').value='';
     document.getElementById('setup-model').value='gpt-5.3-codex';
     document.getElementById('setup-model-custom').classList.add('hidden');
@@ -1127,13 +1188,20 @@ function confirmLogout(){
 }
 
 /* ====== INIT ====== */
+document.getElementById('login-username').addEventListener('keydown',function(e){if(e.key==='Enter')handleLogin()});
 document.getElementById('setup-token').addEventListener('keydown',function(e){if(e.key==='Enter')handleSetup()});
 
-/* Auto-restore session if token exists */
+/* Auto-restore session: username + token → app, username only → setup, nothing → login */
 (function autoRestore(){
-    if(state.apiToken){
+    if(state.username && state.apiToken){
         enterApp(false);
+    } else if(state.username){
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('setup-screen').classList.remove('hidden');
+        const greet = document.getElementById('setup-greeting');
+        if(greet) greet.innerHTML = 'Olá, <strong class="text-brand-400">' + escapeHtml(state.username) + '</strong>! Configure sua API para começar.' + (isAdmin() ? ' <span class="plan-badge-admin text-[9px] font-bold px-2 py-0.5 rounded-full uppercase">Admin</span>' : '');
     }
+    // else: login-screen is already visible
 })();
 </script>
 </body>
